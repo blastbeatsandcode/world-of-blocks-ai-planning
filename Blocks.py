@@ -8,9 +8,9 @@ And a status associated with
 class Block:
     # Constructor for the block
     def __init__(self, symbol, location):
-        self.symbol = str(symbol)
-        self.location = location
-        self.state = State()
+        self.symbol = str(symbol)   # Symbol on the block
+        self.location = location    # Current location of the block
+        self.state = State()        # State attributes of the block
 
 '''
 States define the different states of the World of Blocks problem
@@ -19,10 +19,10 @@ Each block has a state, and the states have the relations for blocks about them
 class State():
     # The state of a block has the following relations at any given time
     def __init__(self):
-        self.Above = None       # A list of blocks the block is above
-        self.On = None          # A block the block is on top of
-        self.Clear = None       # If the block has any blocks on top of it
-        self.Table = None       # If the the block is directly on the table
+        self.above = []         # A list of blocks the block is above
+        self.on = None          # A block the block is on top of
+        self.clear = None       # If the block has any blocks on top of it
+        self.table = None       # If the the block is directly on the table
 
 '''
 Location is an enumerator that defines the locations on the table

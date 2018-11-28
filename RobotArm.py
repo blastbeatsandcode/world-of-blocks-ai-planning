@@ -7,13 +7,29 @@ from enum import Enum
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.
+RobotArm is a SINGLETON object
 '''
-class RobotArm():
-    # Constructor for the robot arm
+class RobotArm:
+    # Store the instance
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        """ Static access method """
+        if RobotArm.__instance == None:
+            RobotArm()
+        return RobotArm.__instance
+
+    # Private Constructor for the robot arm
     # Initially, the arm is empty and is not holding a block
     def __init__(self):
-        self.__state = ArmState.EMPTY
-        self.__block = None
+        if RobotArm.__instance != None:
+            raise Exception("RobotArm is a singleton class.")
+        else:
+            self.__state = ArmState.EMPTY
+            self.__block = None
+            self.__blocks = []      # List of all registered blocks
+            RobotArm.__instance = self
 
     # The arm should only grab a block if the arm is already empty
     def grab_block(self, block):
@@ -26,6 +42,25 @@ class RobotArm():
         if self.__state == ArmState.HOLDING:
             self.__block = None
             self.__state = ArmState.HOLDING
+
+    # Return the arm state
+    def get_state(self):
+        return self.__state
+
+    # Return the block that the arm is holding
+    def get_block(self):
+        return self.__block
+
+    # Register a block to add it to the list
+    def register_block(self, block):
+        self.__blocks.append(block)
+
+    # Returns if any block is on the given table location
+    def is_location_empty(self, table_loc):
+        for block in self.__blocks:
+            if block.location == table_loc:
+                return False
+        return True
 
 
 '''
