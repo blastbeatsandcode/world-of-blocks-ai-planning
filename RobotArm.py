@@ -41,7 +41,7 @@ class RobotArm:
     def release_block(self):
         if self.__state == ArmState.HOLDING:
             self.__block = None
-            self.__state = ArmState.HOLDING
+            self.__state = ArmState.EMPTY
 
     # Return the arm state
     def get_state(self):
@@ -51,6 +51,10 @@ class RobotArm:
     def get_block(self):
         return self.__block
 
+    # Return list of registered blocks
+    def get_registered_blocks(self):
+        return self.__blocks
+
     # Register a block to add it to the list
     def register_block(self, block):
         self.__blocks.append(block)
@@ -58,7 +62,8 @@ class RobotArm:
     # Returns if any block is on the given table location
     def is_location_empty(self, table_loc):
         for block in self.__blocks:
-            if block.location == table_loc:
+            # If a block is in the location and it is not currently being held by the robot arm, return false
+            if block.location == table_loc and block != RobotArm.get_instance().get_block():
                 return False
         return True
 

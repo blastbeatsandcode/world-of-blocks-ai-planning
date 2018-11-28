@@ -2,9 +2,11 @@
 Driver code for World Of Blocks
 '''
 import cocos
+import Actions
 from Blocks import Block
 from Blocks import Location
 from RobotArm import RobotArm
+from Blocks import State
 
 #TODO: Look into creating a singleton object within cocos2d that maybe we can use to reference the blocks and the robot arm
 #       This can be initialized in the driver program then, to keep track of whether the robot arm is holding a block or not
@@ -29,6 +31,42 @@ class HelloWorld(cocos.layer.Layer):
         # Since the label is a subclass of cocosnode it can be added as a child
         self.add(label)
 
+# Simple testing to see if actions work properly
+def abc_test():
+    RobotArm.get_instance().register_block(Block("A", Location.L1))
+    RobotArm.get_instance().register_block(Block("B", Location.L1))
+    RobotArm.get_instance().register_block(Block("C", Location.L1))
+
+    # Get the blocks from robot arm
+    block_a = RobotArm.get_instance().get_registered_blocks()[0]
+    block_b = RobotArm.get_instance().get_registered_blocks()[1]
+    block_c = RobotArm.get_instance().get_registered_blocks()[2]
+
+
+    # Give the blocks attributes to stack in order on L1, with A on top, B in the middle, C on table
+    block_a.state = State([block_c, block_b], block_b, True, False)
+    block_b.state = State([block_c], block_c, False, False)
+    block_c.state = State([], None, False, True)
+
+    # Attempt to unstack A from the stack, move it to L4, and put it down
+    print("MOVE A TO L4 ===============")
+    Actions.unstack(block_a, block_b)
+    Actions.move(Location.L4)
+    Actions.put_down(block_a, Location.L4)
+
+    # Then move B from C to top of A
+    print("MOVE B TO TOP OF A =========")
+    Actions.unstack(block_b, block_c)
+    Actions.move(Location.L4)
+    Actions.stack(block_b, block_a)
+
+    # move C to L2
+    print("MOVE C TO L2 ===============")
+    Actions.pick_up(block_c)
+    Actions.move(Location.L2)
+    Actions.put_down(block_c, Location.L2)
+
+
 # Insertion point for program
 if __name__ == "__main__":
         # Initialize the director (a type of game manager, a singleton object)
@@ -49,13 +87,4 @@ if __name__ == "__main__":
         '''
         DOING SOME TESTING HERE
         '''
-        # Create some blocks
-        blocks = []
-
-        for i in range (0, 3):
-            blocks.append(Block(i, Location.L3))
-
-        for block in blocks:
-            print("Symbol: " + block.symbol + " Location: " + block.location.value)
-
-        print(RobotArm.get_instance().get_state())
+        abc_test()

@@ -18,7 +18,7 @@ def stack(x, y):
             robot arm block = None; y clear = False; x above y and everything below y
     '''
     if y.state.clear and RobotArm.get_instance().get_block() == x:  # PRECONDITIONS 
-        print("Stack the block!")                                   # CHANGES
+        print("Stack the block")                                   # CHANGES
         x.state.on = y
         x.state.clear = True
         # EMPTY arm; sets block to None
@@ -37,6 +37,7 @@ def unstack(x, y):
     CHNG:   clear(y); Robot arm HOLDING x; x CLEAR = False; x ON = None; x above = []
     '''
     if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.clear == True and x.state.on == y and x.state.table == False:
+        print("Unstack the block")
         y.state.clear = True
         RobotArm.get_instance().grab_block(x)
         x.state.clear = False
@@ -51,16 +52,19 @@ def pick_up(x):
     CHNG:   x table = False; Robot arm grab x; 
     '''
     if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.table == True and x.state.clear == True:
+        print("Pick up the block")
         x.state.table = False
         RobotArm.get_instance().grab_block(x)
 
 # put_down places the block directly onto a table location
 def put_down(x, table_loc):
     '''
-    PRE:    Robot arm must be holding x; no blocks must be on the specified location
+    PRE:    Robot arm must be holding x; no blocks must be on the specified location; block's current location must be equal to new location
+            (New location has been set by MOVE)
     CHNG:   Clear(x); x table = True; Robot arm empty
     '''
-    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc):
+    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.location == table_loc:
+        print("Put down the block")
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
@@ -70,10 +74,11 @@ def put_down(x, table_loc):
 # Assigns a new location to the block being held
 def move(end_location):
     '''
-    PRE:    Robot arm must be holding a block
+    PRE:    Robot arm must be holding a block and end location must not be block's current location
     CHNG:   block location = end_location
     '''
-    if RobotArm.get_instance().get_state == ArmState.HOLDING:
+    if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().location != end_location:
+        print("Move the block")
         RobotArm.get_instance().get_block().location = end_location
 
 # No operation; nothing happens, but time passes
