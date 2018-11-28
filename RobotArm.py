@@ -29,6 +29,8 @@ class RobotArm:
             self.__state = ArmState.EMPTY
             self.__block = None
             self.__blocks = []      # List of all registered blocks
+            self.__initial_state = []
+            self.__goal_state = []
             RobotArm.__instance = self
 
     # The arm should only grab a block if the arm is already empty
@@ -58,6 +60,44 @@ class RobotArm:
     # Register a block to add it to the list
     def register_block(self, block):
         self.__blocks.append(block)
+
+    # Register initial state
+    def register_initial_state(self, initial_blocks):
+        self.__initial_state = initial_blocks
+
+    # Register goal state by adding each block from a list to the goal state
+    def register_goal_state(self, goal_blocks):
+        self.__goal_state = goal_blocks
+
+    # Compare initial and goal state
+    def is_goal_state_reached(self):
+        # If the initial state and goal states are not empty
+        # And if they have the same amount of blocks in each, compare each block with a matching symbol
+        if (self.__initial_state != [] and self.__goal_state != [] and 
+            len(self.__initial_state) == len(self.__goal_state)):
+            temp_goal_state = self.__goal_state # Temporary list to contain the goal state
+            for init_block in self.__initial_state:
+                #print("Initial block: ", init_block.symbol)
+                matches_symbol = False  # Check each goal block to see if symbol matches
+                for goal_block in temp_goal_state:
+                    #print("Goal block: ", goal_block.symbol)
+                    if init_block.symbol == goal_block.symbol: # Check for symbol matches
+                        matches_symbol = True
+                        if init_block.state != goal_block.state: # If the states do not match, goal state is not reached
+                            return False
+                        else:                                   # Otherwise, remove this block from the temp list so we don't check for it again
+                            temp_goal_state.remove(goal_block)  # Remove the blocks from their respective lists
+                            # If we get here and temp goal state is empty and we are at the last item of the initial state list
+                            # Then we have a matching state
+                            if len(temp_goal_state) == 0 and self.__initial_state[-1] == init_block:
+                                return True
+                            break
+                # If it finishes iterating and a symbol is not matched, then the same blocks are not in the states
+                if not matches_symbol:
+                    raise Exception("Goal blocks and Initial blocks do not contain the same blocks!")
+        else:
+            return False
+        return False
 
     # Returns if any block is on the given table location
     def is_location_empty(self, table_loc):

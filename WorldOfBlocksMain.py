@@ -42,6 +42,16 @@ def abc_test():
     block_b = RobotArm.get_instance().get_registered_blocks()[1]
     block_c = RobotArm.get_instance().get_registered_blocks()[2]
 
+    # THIS WILL BE THE GOAL STATE
+    # Make copies of the original location of A B and C
+    block_a_copy = Block(block_a.symbol, block_a.location)
+    block_b_copy = Block(block_b.symbol, block_b.location)
+    block_c_copy = Block(block_c.symbol, block_c.location)
+    # Set the States of these blocks to be equal to the starting values of A B and C
+    block_a_copy.state = block_a.state
+    block_b_copy.state = block_b.state
+    block_c_copy.state = block_c.state
+    
 
     # Give the blocks attributes to stack in order on L1, with A on top, B in the middle, C on table
     block_a.state = State([block_c, block_b], block_b, True, False)
@@ -65,6 +75,13 @@ def abc_test():
     Actions.pick_up(block_c)
     Actions.move(Location.L2)
     Actions.put_down(block_c, Location.L2)
+
+    # Test these combinations, should NOT be a match:
+    RobotArm.get_instance().register_initial_state([block_a, block_b, block_c])
+    RobotArm.get_instance().register_goal_state([block_a_copy, block_b_copy, block_c_copy])
+    print("IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached())
+    RobotArm.get_instance().register_goal_state([block_a, block_b, block_c])
+    print("NOW IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached())
 
 
 # Insertion point for program
