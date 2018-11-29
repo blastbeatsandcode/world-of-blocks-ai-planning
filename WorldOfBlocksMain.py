@@ -34,14 +34,10 @@ class HelloWorld(cocos.layer.Layer):
 
 # Simple testing to see if actions work properly
 def abc_test():
-    RobotArm.get_instance().register_block(Block("A", Location.L1))
-    RobotArm.get_instance().register_block(Block("B", Location.L1))
-    RobotArm.get_instance().register_block(Block("C", Location.L1))
-
     # Get the blocks from robot arm
-    block_a = RobotArm.get_instance().get_registered_blocks()[0]
-    block_b = RobotArm.get_instance().get_registered_blocks()[1]
-    block_c = RobotArm.get_instance().get_registered_blocks()[2]
+    block_a = Block("A", Location.L1)
+    block_b = Block("B", Location.L1)
+    block_c = Block("C", Location.L1)
 
     # THIS WILL BE THE GOAL STATE
     # Make copies of the original location of A B and C
@@ -84,7 +80,14 @@ def abc_test():
     RobotArm.get_instance().register_goal_state([block_a, block_b, block_c])
     print("NOW IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached()) # Should be True
 
+    RobotArm.get_instance().register_initial_state([block_a_copy, block_b_copy, block_c_copy])
+    print("A: ", str(block_a_copy.location))
+    print("B: ", str(block_b_copy.location))
+    print("C: ", str(block_c_copy.location))
     RobotArm.get_instance().register_goal_state([block_a, block_b, block_c])
+    print("A: ", str(block_a.location))
+    print("B: ", str(block_b.location))
+    print("C: ", str(block_c.location))
 
     print("Original state. . .")
     RobotArm.get_instance().get_initial_state()[0].block_info()

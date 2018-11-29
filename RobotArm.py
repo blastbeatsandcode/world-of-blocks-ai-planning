@@ -28,7 +28,7 @@ class RobotArm:
         else:
             self.__state = ArmState.EMPTY
             self.__block = None
-            self.__blocks = []      # List of all registered blocks
+            #self.__blocks = []      # List of all registered blocks
             self.__initial_state = []
             self.__goal_state = []
             RobotArm.__instance = self
@@ -53,13 +53,17 @@ class RobotArm:
     def get_block(self):
         return self.__block
 
-    # Return list of registered blocks
-    def get_registered_blocks(self):
-        return self.__blocks
+    # # Return list of registered blocks
+    # def get_registered_blocks(self):
+    #     return self.__blocks
 
-    # Register a block to add it to the list
-    def register_block(self, block):
-        self.__blocks.append(block)
+    # # Register a block to add it to the list
+    # def register_block(self, block):
+    #     self.__blocks.append(block)
+
+    # # Reset the registered blocks to an empty list
+    # def reset_registered_blocks(self):
+    #     self.__blocks = []
 
     # Register initial state
     def register_initial_state(self, initial_blocks):
@@ -111,7 +115,7 @@ class RobotArm:
 
     # Returns if any block is on the given table location
     def is_location_empty(self, table_loc):
-        for block in self.__blocks:
+        for block in self.__initial_state:
             # If a block is in the location and it is not currently being held by the robot arm, return false
             if block.location == table_loc and block != RobotArm.get_instance().get_block():
                 return False

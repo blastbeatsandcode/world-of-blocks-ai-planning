@@ -16,11 +16,13 @@ class Pathfinder:
         # Get all blocks that will be directly on the table.
         self.__generate_table_blocks()
 
+        # TODO: HANDLE ABOVE/ON BLOCKS (move the blocks on top of the table block?)
         # For each block in the table list, run all functions until we get a desired path.
-        for block in self.table_blocks:
-            for init_block in self.init_state: # Find the initial state block that matches
-                if init_block.symbol == block.symbol: # And run the actions on it
-                    self.__run_all_actions(init_block, block.location)
+        while self.table_blocks > 0: # keep doing this until we have emptied the table list
+            for block in self.table_blocks:
+                for init_block in self.init_state: # Find the initial state block that matches
+                    if init_block.symbol == block.symbol: # And run the actions on it
+                        self.__run_all_actions(init_block, block.location)
 
     # Add blocks on table in goal state to table blocks list
     def __generate_table_blocks(self):
@@ -33,32 +35,35 @@ class Pathfinder:
         '''
         Run all actions
         '''
-        # Handle Move
-        Actions.move(end_location)
+        # Save a copy of the original block
+        original_block = block
 
-        #print("AFTER MOVE")
+        # # Handle Move
+        # if Actions.move(end_location):
+        #     print("MOVE WAS TRUE ", original_block.symbol)
+        #     if 
+        #     self.__run_all_actions(block, end_location)
 
         # Handle Unstack
         for other_block in self.init_state:
             if other_block != block:
-                Actions.unstack(block, other_block)
-
-        #print("AFTER UNSTACK")
+                if Actions.unstack(block, other_block):
+                    print("UNSTACK WAS TRUE ", original_block.symbol)
+                    Actions.move(end_location)
 
         # Handle Stack
         for other_block in self.init_state:
             if other_block != block:
-                Actions.stack(block, other_block)
-
-        #print("AFTER STACK")
+                if Actions.stack(block, other_block):
+                    print("STACK WAS TRUE ", original_block.symbol)
 
         # Handle Pick Up
-        Actions.pick_up(block)
+        if Actions.pick_up(block):
+            print("PICK UP WAS TRUE ", original_block.symbol)
+            Actions.move(end_location)
 
-        #print("AFTER PICK UP")
 
         # Handle Put Down
-        Actions.put_down(block, end_location)
-
-        #print("AFTER PUT DOWN")
+        if Actions.put_down(block, end_location):
+            print("PUT DOWN WAS TRUE ", original_block.symbol)
 

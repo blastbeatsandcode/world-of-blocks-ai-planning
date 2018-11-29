@@ -13,11 +13,11 @@ Constraints were also removed because invalid datatypes should prevent issues fr
 # Stack the first block on top of the second block if all conditions are met
 def stack(x, y):
     '''
-    PRE:    Robot arm must be holding x; y must be clear
+    PRE:    Robot arm must be holding x; y must be clear; y must be at the same location as x
     CHNG:   On(x, y); clear(x); Robot arm empty; 
             robot arm block = None; y clear = False; x above y and everything below y
     '''
-    if y.state.clear and RobotArm.get_instance().get_block() == x:  # PRECONDITIONS 
+    if y.state.clear and RobotArm.get_instance().get_block() == x and x.location == y.location:  # PRECONDITIONS 
         print("Stack the block")                                   # CHANGES
         x.state.on = y
         x.state.clear = True
