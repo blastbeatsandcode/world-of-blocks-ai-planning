@@ -12,6 +12,20 @@ class Block:
         self.location = location    # Current location of the block
         self.state = State()        # State attributes of the block
 
+    # Print out block information
+    def block_info(self):
+        print("Symbol: " + self.symbol + " Loc: " + str(self.location))
+        print("State:")
+        print("Table - ", self.state.table)
+        print("Clear - ", self.state.clear)
+        above_str = "["
+        for block in self.state.above:
+            above_str += " " + block.symbol + ","
+        if self.state.above == []:
+            above_str = "[NONE"
+        above_str += "]"
+        print("Above -" + above_str)
+
 '''
 States define the different states of the World of Blocks problem
 Each block has a state, and the states have the relations for blocks about them

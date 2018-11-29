@@ -1,8 +1,9 @@
 '''
 Driver code for World Of Blocks
 '''
-import cocos
 import Actions
+import cocos
+from Pathfinding import Pathfinder
 from Blocks import Block
 from Blocks import Location
 from RobotArm import RobotArm
@@ -47,16 +48,16 @@ def abc_test():
     block_a_copy = Block(block_a.symbol, block_a.location)
     block_b_copy = Block(block_b.symbol, block_b.location)
     block_c_copy = Block(block_c.symbol, block_c.location)
-    # Set the States of these blocks to be equal to the starting values of A B and C
-    block_a_copy.state = block_a.state
-    block_b_copy.state = block_b.state
-    block_c_copy.state = block_c.state
     
-
     # Give the blocks attributes to stack in order on L1, with A on top, B in the middle, C on table
     block_a.state = State([block_c, block_b], block_b, True, False)
     block_b.state = State([block_c], block_c, False, False)
     block_c.state = State([], None, False, True)
+
+    # Set the States of these blocks to be A B C in order, with C being on the table
+    block_a_copy.state = State([block_c_copy, block_b_copy], block_b_copy, True, False)
+    block_b_copy.state = State([block_c_copy], block_c_copy, False, False)
+    block_c_copy.state = State([], None, False, True)
 
     # Attempt to unstack A from the stack, move it to L4, and put it down
     print("MOVE A TO L4 ===============")
@@ -79,10 +80,26 @@ def abc_test():
     # Test these combinations, should NOT be a match:
     RobotArm.get_instance().register_initial_state([block_a, block_b, block_c])
     RobotArm.get_instance().register_goal_state([block_a_copy, block_b_copy, block_c_copy])
-    print("IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached())
+    print("IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached()) # Should be False
     RobotArm.get_instance().register_goal_state([block_a, block_b, block_c])
-    print("NOW IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached())
+    print("NOW IS GOAL REACHED? ", RobotArm.get_instance().is_goal_state_reached()) # Should be True
 
+    RobotArm.get_instance().register_goal_state([block_a, block_b, block_c])
+
+    print("Original state. . .")
+    RobotArm.get_instance().get_initial_state()[0].block_info()
+    RobotArm.get_instance().get_initial_state()[1].block_info()
+    RobotArm.get_instance().get_initial_state()[2].block_info()
+
+    # Do exhaustive search
+    path_finder = Pathfinder(RobotArm.get_instance().get_initial_state(),
+        RobotArm.get_instance().get_goal_state())
+    path_finder.exhaustive_search()
+
+    print("New State . . .")
+    RobotArm.get_instance().get_initial_state()[0].block_info()
+    RobotArm.get_instance().get_initial_state()[1].block_info()
+    RobotArm.get_instance().get_initial_state()[2].block_info()
 
 # Insertion point for program
 if __name__ == "__main__":

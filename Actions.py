@@ -28,6 +28,8 @@ def stack(x, y):
         x.state.above.append(y)
         for block in y.state.above:
             x.state.above.append(block)
+        return True
+    return False
 
 # Unstack removes the first block from the top of the second block
 # ONLY IF the first block IS NOT on the table
@@ -43,6 +45,8 @@ def unstack(x, y):
         x.state.clear = False
         x.state.on = None
         x.state.above = []
+        return True
+    return False
 
 # pick_up removes the block from the table
 # ONLY IF the first block IS on the table
@@ -55,6 +59,8 @@ def pick_up(x):
         print("Pick up the block")
         x.state.table = False
         RobotArm.get_instance().grab_block(x)
+        return True
+    return False
 
 # put_down places the block directly onto a table location
 def put_down(x, table_loc):
@@ -68,6 +74,8 @@ def put_down(x, table_loc):
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
+        return True
+    return False
 
 
 # Move is only carried out by the robot arm BETWEEN (unstack/pick_up) and (stack/put_down actions)
@@ -80,6 +88,8 @@ def move(end_location):
     if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().location != end_location:
         print("Move the block")
         RobotArm.get_instance().get_block().location = end_location
+        return True
+    return False
 
 # No operation; nothing happens, but time passes
 def noop():

@@ -65,13 +65,23 @@ class RobotArm:
     def register_initial_state(self, initial_blocks):
         self.__initial_state = initial_blocks
 
+    # Returns the initial state
+    def get_initial_state(self):
+        if self.__initial_state != []:
+            return self.__initial_state
+
+    # Returns the goal state
+    def get_goal_state(self):
+        if self.__goal_state != []:
+            return self.__goal_state
+
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_blocks):
         self.__goal_state = goal_blocks
 
-    # Compare initial and goal state
+    # Compare initial and goal state, return true if they match, false otherwise
     def is_goal_state_reached(self):
-        # If the initial state and goal states are not empty
+        # If the initial state and goal states are not empty (they must both be "registered")
         # And if they have the same amount of blocks in each, compare each block with a matching symbol
         if (self.__initial_state != [] and self.__goal_state != [] and 
             len(self.__initial_state) == len(self.__goal_state)):
