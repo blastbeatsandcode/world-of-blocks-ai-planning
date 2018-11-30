@@ -39,7 +39,18 @@ class State():
         self.table = table      # If the the block is directly on the table
 
 '''
-Location is an enumerator that defines the locations on the table
+TableState defines the state of the table with each table location acting as a STACK
+This can refer to both the goal state and the initial state of the table
+'''
+class TableState():
+    def __init__(self, L1 = [], L2 = [], L3 = [], L4 = []):
+        self.L1 = L1
+        self.L2 = L2
+        self.L3 = L3
+        self.L4 = L4
+
+'''
+Location is an enumerator that refers to the locations on the table
 '''
 class Location(Enum):
     L1 = "L1"

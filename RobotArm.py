@@ -1,9 +1,9 @@
 '''
 RobotArm.py contains definitions and attributes pertaining to the Robot Arm
 '''
-# TODO: Define Actions the arm can perform (Pickup, put down?) Or will this be covered in Actions.py?
-# TODO: Define States of the arm (HOLDING, NOT HOLDING)
 from enum import Enum
+from Blocks import TableState
+from Blocks import Location
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.
@@ -29,8 +29,9 @@ class RobotArm:
             self.__state = ArmState.EMPTY
             self.__block = None
             #self.__blocks = []      # List of all registered blocks
-            self.__initial_state = []
-            self.__goal_state = []
+            self.__initial_state = TableState()
+            self.__goal_state = TableState()
+            self.__solver = None
             RobotArm.__instance = self
 
     # The arm should only grab a block if the arm is already empty
@@ -53,21 +54,9 @@ class RobotArm:
     def get_block(self):
         return self.__block
 
-    # # Return list of registered blocks
-    # def get_registered_blocks(self):
-    #     return self.__blocks
-
-    # # Register a block to add it to the list
-    # def register_block(self, block):
-    #     self.__blocks.append(block)
-
-    # # Reset the registered blocks to an empty list
-    # def reset_registered_blocks(self):
-    #     self.__blocks = []
-
     # Register initial state
-    def register_initial_state(self, initial_blocks):
-        self.__initial_state = initial_blocks
+    def register_initial_state(self, initial_state):
+        self.__initial_state = initial_state
 
     # Returns the initial state
     def get_initial_state(self):
@@ -79,9 +68,12 @@ class RobotArm:
         if self.__goal_state != []:
             return self.__goal_state
 
+    def register_solver(self, solver):
+        self.__solver = solver
+
     # Register goal state by adding each block from a list to the goal state
-    def register_goal_state(self, goal_blocks):
-        self.__goal_state = goal_blocks
+    def register_goal_state(self, goal_state):
+        self.__goal_state = goal_state
 
     # Compare initial and goal state, return true if they match, false otherwise
     def is_goal_state_reached(self):
@@ -115,11 +107,19 @@ class RobotArm:
 
     # Returns if any block is on the given table location
     def is_location_empty(self, table_loc):
-        for block in self.__initial_state:
-            # If a block is in the location and it is not currently being held by the robot arm, return false
-            if block.location == table_loc and block != RobotArm.get_instance().get_block():
-                return False
-        return True
+        if table_loc == Location.L1:
+            if len(self.__solver.current_state.L1) == 0:
+                return True
+        elif table_loc == Location.L2:
+            if len(self.__solver.current_state.L2) == 0:
+                return True
+        elif table_loc == Location.L3:
+            if len(self.__solver.current_state.L3) == 0:
+                return True
+        elif table_loc == Location.L4:
+            if len(self.__solver.current_state.L4) == 0:
+                return True
+        return False
 
 
 '''
