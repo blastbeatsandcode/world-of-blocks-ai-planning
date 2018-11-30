@@ -28,7 +28,7 @@ class RobotArm:
         else:
             self.__state = ArmState.EMPTY
             self.__block = None
-            #self.__blocks = []      # List of all registered blocks
+            self.__goal_dict = {}      # List of symbols with matching states
             self.__initial_state = TableState()
             self.__goal_state = TableState()
             self.__solver = None
@@ -71,10 +71,22 @@ class RobotArm:
     # Register the solver object
     def register_solver(self, solver):
         self.__solver = solver
+        # Create dictionary of goal states for each symbol
+        for block in self.__goal_state.L1:
+            self.__goal_dict[block.symbol] = block.state
+        for block in self.__goal_state.L2:
+            self.__goal_dict[block.symbol] = block.state
+        for block in self.__goal_state.L3:
+            self.__goal_dict[block.symbol] = block.state
+        for block in self.__goal_state.L4:
+            self.__goal_dict[block.symbol] = block.state
 
     # Returns the solver object
-    def get_solver(self):
-        return self.__solver
+    def run_solver(self):
+        if (self.__solver != None):
+            self.__solver.solve()
+        else:
+            raise Exception('Solver has not yet been registered!')
 
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_state):
@@ -125,6 +137,13 @@ class RobotArm:
             if len(self.__solver.current_state.L4) == 0:
                 return True
         return False
+
+    '''
+    Checks if block is at goal state.
+    Returns true if it is, false otherwise.
+    '''
+    def is_block_at_goal(self, block):
+        return block.state == self.__goal_dict[block.symbol]
 
 
 '''

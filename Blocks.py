@@ -26,6 +26,7 @@ class Block:
             above_str = "[NONE"
         above_str += "]"
         print("Above -" + above_str)
+        print("At Goal - ", self.at_goal)
 
 '''
 States define the different states of the World of Blocks problem

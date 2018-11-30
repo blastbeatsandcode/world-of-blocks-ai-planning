@@ -28,6 +28,8 @@ def stack(x, y):
         x.state.above.append(y)
         for block in y.state.above:
             x.state.above.append(block)
+        # Check if block is at goal
+        x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
     return False
 
@@ -74,6 +76,8 @@ def put_down(x, table_loc):
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
+        # Check if block is at goal
+        x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
     return False
 

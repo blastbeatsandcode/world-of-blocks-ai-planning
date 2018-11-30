@@ -118,9 +118,20 @@ def create_states_test():
     block_c_copy = Block(block_c.symbol, block_c.location)
     
     # Give the blocks attributes to stack in order on L1, with A on top, B in the middle, C on table (initial state)
+    ''' UNCOMMENT FOR L1 STACK
     block_a.state = State([block_c, block_b], block_b, True, False)
     block_b.state = State([block_c], block_c, False, False)
     block_c.state = State([], None, False, True)
+    '''
+
+    ''' UNCOMMENT FOR SPREAD OUT STACK '''
+    block_a.location = Location.L1
+    block_b.location = Location.L2
+    block_c.location = Location.L3
+    block_a.state = State([], None, True, True)
+    block_b.state = State([], None, True, True)
+    block_c.state = State([], None, True, True)
+    
 
     # Set A at L4 on the table, with B on top, and C at L2 (goal state)
     block_a_copy.location = Location.L4
@@ -150,7 +161,7 @@ def create_states_test():
     solver = Solver(RobotArm.get_instance().get_initial_state(),
                     RobotArm.get_instance().get_goal_state())
     RobotArm.get_instance().register_solver(solver)
-    RobotArm.get_instance().get_solver().solve()
+    RobotArm.get_instance().run_solver()
 
 # Insertion point for program
 if __name__ == "__main__":
