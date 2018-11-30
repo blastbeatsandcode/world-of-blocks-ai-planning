@@ -142,9 +142,10 @@ def create_states_test():
     block_c_copy.state = State([], None, True, True)                        # L2, On Table
 
     # State we start with and state we end with
-    l1 = [block_c, block_b, block_a]
-    l2 = []
-    l3 = []
+    # SET THE ORDER OF THE BLOCKS HERE IN THE STACK
+    l1 = [block_c]
+    l2 = [block_b]
+    l3 = [block_a]
     l4 = []
     initial_state = TableState(l1, l2, l3, l4)
     l1 = []
