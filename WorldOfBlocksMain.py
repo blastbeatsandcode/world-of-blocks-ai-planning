@@ -146,11 +146,11 @@ def create_states_test():
     RobotArm.get_instance().register_initial_state(initial_state)
     RobotArm.get_instance().register_goal_state(goal_state)
 
-    # Create the solver
+    # Create the solver, register it to RobotArm, and solve
     solver = Solver(RobotArm.get_instance().get_initial_state(),
                     RobotArm.get_instance().get_goal_state())
     RobotArm.get_instance().register_solver(solver)
-    solver.solve()
+    RobotArm.get_instance().get_solver().solve()
 
 # Insertion point for program
 if __name__ == "__main__":

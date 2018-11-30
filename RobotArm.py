@@ -68,8 +68,13 @@ class RobotArm:
         if self.__goal_state != []:
             return self.__goal_state
 
+    # Register the solver object
     def register_solver(self, solver):
         self.__solver = solver
+
+    # Returns the solver object
+    def get_solver(self):
+        return self.__solver
 
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_state):
