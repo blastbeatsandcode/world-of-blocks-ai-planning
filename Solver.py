@@ -16,11 +16,48 @@ class Solver:
         self.l4_complete = False
 
     '''
+    Check if we have reached the goal state
+    '''
+    def goal_state_reached(self):
+        return self.current_state == self.goal_state
+
+    '''
     Solve the World of Blocks problem.
     '''
     def solve(self):
         # Get all blocks to the default position
         self.reposition()
+
+        # If there are any blocks going to L1, find the TABLE block, and then reposition
+        # Do this for each stack location
+        self.get_l1_blocks()
+        self.get_l2_blocks()
+        self.get_l3_blocks()
+        self.get_l4_blocks()
+
+    '''
+    Handle block movement to L1
+    '''
+    def get_l1_blocks(self):
+        pass
+
+    '''
+    Handle block movement to L2
+    '''
+    def get_l2_blocks(self):
+        pass
+
+    '''
+    Handle block movement to L3
+    '''
+    def get_l3_blocks(self):
+        pass
+
+    '''
+    Handle block movement to L4
+    '''
+    def get_l4_blocks(self):
+        pass
 
     '''
     Iterate over each stack location and move the blocks to L4 to get them to a "default" state.
