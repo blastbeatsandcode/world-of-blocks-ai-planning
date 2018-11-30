@@ -7,15 +7,14 @@ And a status associated with
 '''
 class Block:
     # Constructor for the block
-    def __init__(self, symbol, location):
+    def __init__(self, symbol):
         self.symbol = str(symbol)   # Symbol on the block
-        self.location = location    # Current location of the block
         self.state = State()        # State attributes of the block
         self.at_goal = False        # If block is at goal state
 
     # Print out block information
     def block_info(self):
-        print("Symbol: " + self.symbol + " Loc: " + str(self.location))
+        print("Symbol: " + self.symbol + " Loc: " + str(self.state.location))
         print("State:")
         print("Table - ", self.state.table)
         print("Clear - ", self.state.clear)
@@ -34,11 +33,12 @@ Each block has a state, and the states have the relations for blocks about them
 '''
 class State():
     # The state of a block has the following relations at any given time
-    def __init__(self, above = [], on = None, clear = None, table = None):
+    def __init__(self, above = [], on = None, clear = None, table = None, location = None):
         self.above = above      # A list of blocks the block is above
         self.on = on            # A block the block is on top of
         self.clear = clear      # If the block has any blocks on top of it
         self.table = table      # If the the block is directly on the table
+        self.location = location# Current location of the block
 
 '''
 TableState defines the state of the table with each table location acting as a STACK

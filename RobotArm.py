@@ -68,6 +68,10 @@ class RobotArm:
         if self.__goal_state != []:
             return self.__goal_state
 
+    # Return the goal state dictionary
+    def get_goal_dict(self):
+        return self.__goal_dict
+
     # Register the solver object
     def register_solver(self, solver):
         self.__solver = solver

@@ -17,7 +17,7 @@ def stack(x, y):
     CHNG:   On(x, y); clear(x); Robot arm empty; 
             robot arm block = None; y clear = False; x above y and everything below y
     '''
-    if y.state.clear and RobotArm.get_instance().get_block() == x and x.location == y.location:  # PRECONDITIONS 
+    if y.state.clear and RobotArm.get_instance().get_block() == x and x.state.location == y.state.location:  # PRECONDITIONS 
         print("Stack the block")                                   # CHANGES
         x.state.on = y
         x.state.clear = True
@@ -71,7 +71,7 @@ def put_down(x, table_loc):
             (New location has been set by MOVE)
     CHNG:   Clear(x); x table = True; Robot arm empty
     '''
-    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.location == table_loc:
+    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.state.location == table_loc:
         print("Put down the block")
         x.state.clear = True
         x.state.table = True
@@ -89,9 +89,9 @@ def move(end_location):
     PRE:    Robot arm must be holding a block and end location must not be block's current location
     CHNG:   block location = end_location
     '''
-    if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().location != end_location:
+    if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().state.location != end_location:
         print("Move the block")
-        RobotArm.get_instance().get_block().location = end_location
+        RobotArm.get_instance().get_block().state.location = end_location
         return True
     return False
 
