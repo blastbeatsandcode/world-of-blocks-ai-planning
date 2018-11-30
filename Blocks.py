@@ -11,6 +11,7 @@ class Block:
         self.symbol = str(symbol)   # Symbol on the block
         self.location = location    # Current location of the block
         self.state = State()        # State attributes of the block
+        self.at_goal = False        # If block is at goal state
 
     # Print out block information
     def block_info(self):
