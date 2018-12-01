@@ -93,16 +93,16 @@ def create_states_test():
 # Insertion point for program
 if __name__ == "__main__":
     # Initialize the director (a type of game manager, a singleton object)
-    cocos.director.director.init(width=1280, height=720, caption="World of Blocks - AI With Planning")
+    #cocos.director.director.init(width=1280, height=720, caption="World of Blocks - AI With Planning")
 
     #Create an instance of the hello world in a layer
-    hello_layer = HelloWorld()
+    #hello_layer = HelloWorld()
 
     # Create a scene that contains the layer we just created as a child
-    main_scene = cocos.scene.Scene(hello_layer)
+    #main_scene = cocos.scene.Scene(hello_layer)
 
     # Run the scene
-    # cocos.director.director.run(main_scene)
+    #cocos.director.director.run(main_scene)
 
 
 

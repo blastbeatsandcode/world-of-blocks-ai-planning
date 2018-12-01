@@ -4,6 +4,7 @@ Pathfinding elements to carry out the problem solving.
 import Actions
 from Blocks import Location
 from RobotArm import RobotArm
+from RobotArm import DictState
 
 class Solver:
     # Holds initial state blocks and goal state blocks
@@ -21,7 +22,19 @@ class Solver:
     Check if we have reached the goal state
     '''
     def goal_state_reached(self):
-        return self.current_state == self.goal_state
+        for block in self.current_state.L1:
+            if not block.at_goal:
+                return False
+        for block in self.current_state.L2:
+            if not block.at_goal:
+                return False
+        for block in self.current_state.L3:
+            if not block.at_goal:
+                return False
+        for block in self.current_state.L4:
+            if not block.at_goal:
+                return False
+        return True
 
     '''
     Solve the World of Blocks problem.
@@ -79,11 +92,14 @@ class Solver:
             if len(self.current_state.L3) == 0: # Put down if L3 is empty, stack otherwise
                 Actions.put_down(block, Location.L3)
                 self.current_state.L3.append(block)
+                return True
             else:
                 Actions.stack(block, self.current_state.L3[-1])
                 self.current_state.L3.append(block)
+                return True
         else: # We have reached the bottom of L4, reposition blocks
             self.reposition()
+            return False
 
     '''
     Moves blocks to L2 from L4
@@ -217,9 +233,9 @@ class Solver:
                     else:   # Table block already found,
                             # Find the block that goes on the topmost block, put it there
                         top_block = self.current_state.L2[-1]
-                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol)
-                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block)
-                        if RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol == top_block.symbol:
+                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on)
+                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block.symbol)
+                        if RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block.symbol:
                             if block.state.table == True:
                                 stack_block = self.current_state.L4.pop()
                                 Actions.pick_up(stack_block)
@@ -320,6 +336,9 @@ class Solver:
             self.reposition()
             #self.l3_complete = True
 
+    '''
+    Prints out all of the blocks in L4 (For testing purposes)
+    '''
     def state_of_l4(self):
         for block in self.current_state.L4:
             block.block_info()
@@ -333,9 +352,6 @@ class Solver:
         # set the table block on L1 and pop all the rest off L4 and stack them on L3
         # When L4 is empty, put down L1 block onto L4
         # Then iterate based on stack order in goal
-        if self.stack_at_goal(Location.L4) or self.goal_state_reached():
-            self.l4_complete = True
-            
         if not self.l4_complete:
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
@@ -356,7 +372,8 @@ class Solver:
                         self.current_state.L1.append(table_block)
                     # Now that the table block has been separated, remove the rest of the blocks from L4
                     while len(self.current_state.L4) > 0:
-                        self.remove_bad_block()
+                        if not self.remove_bad_block():
+                            break
                     table_block = self.current_state.L1.pop()
                     if len(self.current_state.L1) == 0: # Pick up
                         Actions.pick_up(table_block)
@@ -379,7 +396,6 @@ class Solver:
                     l4_stack = list(reversed(self.current_state.L4))
                     for item in l4_stack:
                         if not item.at_goal:
-                            self.state_of_l4()
                             move_block = self.current_state.L4.pop()
                             if self.tops_last_goal_l4(move_block):# Check if this block goes on the previous block at goal
                                 Actions.unstack(move_block, self.current_state.L4[-1])
@@ -403,14 +419,19 @@ class Solver:
                                 Actions.stack(next_block, self.current_state.L4[-1])
                                 self.current_state.L4.append(next_block)
                                 next_block.at_goal = True
+                                # L4 is complete if we have reached the goal state
+                                self.l4_complete = self.goal_state_reached()
                                 next_block.block_info()
                                 self.reposition()
                                 self.get_l4_blocks()
                             else: # If this block does not go on top, move to L3 until we find it
                                 self.remove_bad_block()
                                 self.get_l4_blocks()
-        self.reposition()
         self.l4_complete = True
+
+    '''
+    Checks if there are any blocks remaining that are not at goal
+    '''
 
     '''
     Checks if this block goes on the most recently "goaled" block
@@ -420,10 +441,10 @@ class Solver:
         last_top = None
         for item in rev_list: # get first instance of the block at goal on stack
             if item.at_goal:
-                last_top = item
+                last_top = item.symbol
                 break
         for item in self.current_state.L4:
-            if RobotArm.get_instance().get_goal_dict()[item.symbol].on == last_top:
+            if RobotArm.get_instance().get_goal_dict()[block.symbol].on == last_top:
                 return True
         return False
 
@@ -435,37 +456,6 @@ class Solver:
             if block.at_goal:
                 return True
         return False
-
-    '''
-    Check if stack is already at goal
-    '''
-    def stack_at_goal(self, loc):
-        goals = RobotArm.get_instance().get_goal_dict()
-
-        # for key, value in goals.items():
-        #     print("KEY: ", key)
-        #     print("ON: ", value.on)
-        #     print("CLEAR: ", value.clear)
-        #     print("TABLE: ", value.table)
-
-        stack_at_goal = True
-        if loc == Location.L1:
-            for block in self.current_state.L1:
-                if not block.state == goals[block.symbol]:
-                    stack_at_goal = False
-        elif loc == Location.L2:
-            for block in self.current_state.L2:
-                if not block.state == goals[block.symbol]:
-                    stack_at_goal = False
-        elif loc == Location.L3:
-            for block in self.current_state.L3:
-                if not block.state == goals[block.symbol]:
-                    stack_at_goal = False
-        elif loc == Location.L4:
-            for block in self.current_state.L4:
-                if not block.state == goals[block.symbol]:
-                    stack_at_goal = False
-        return stack_at_goal
 
 
     '''

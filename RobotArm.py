@@ -77,13 +77,41 @@ class RobotArm:
         self.__solver = solver
         # Create dictionary of goal states for each symbol
         for block in self.__goal_state.L1:
-            self.__goal_dict[block.symbol] = block.state
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
         for block in self.__goal_state.L2:
-            self.__goal_dict[block.symbol] = block.state
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
         for block in self.__goal_state.L3:
-            self.__goal_dict[block.symbol] = block.state
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
         for block in self.__goal_state.L4:
-            self.__goal_dict[block.symbol] = block.state
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
 
     # Returns the solver object
     def run_solver(self):
@@ -156,3 +184,14 @@ ArmState is an Enum that defines whether the robot arm is holding a block or not
 class ArmState(Enum):
     HOLDING = 1
     EMPTY = 0
+
+'''
+DictState represents the states using only symbols
+'''
+class DictState():
+    def __init__(self, above, on, clear, table, location):
+        self.above = above
+        self.on = on
+        self.clear = clear
+        self.table = table
+        self.location = location
