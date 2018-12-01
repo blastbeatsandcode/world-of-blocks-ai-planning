@@ -1,14 +1,14 @@
 '''
 Driver code for World Of Blocks
 '''
-import Actions
+import solver.Actions
 import cocos
-from Solver import Solver
-from Blocks import Block
-from Blocks import Location
-from RobotArm import RobotArm
-from Blocks import State
-from Blocks import TableState
+from solver.Solver import Solver
+from solver.Blocks import Block
+from solver.Blocks import Location
+from solver.Blocks import State
+from solver.Blocks import TableState
+from solver.RobotArm import RobotArm
 
 #TODO: Look into creating a singleton object within cocos2d that maybe we can use to reference the blocks and the robot arm
 #       This can be initialized in the driver program then, to keep track of whether the robot arm is holding a block or not
@@ -111,4 +111,4 @@ if __name__ == "__main__":
     DOING SOME TESTING HERE
     '''
     #abc_test()
-    create_states_test()
+create_states_test()
