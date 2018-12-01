@@ -17,8 +17,8 @@ def stack(x, y):
     CHNG:   On(x, y); clear(x); Robot arm empty; 
             robot arm block = None; y clear = False; x above y and everything below y
     '''
-    if y.state.clear and RobotArm.get_instance().get_block() == x and x.location == y.location:  # PRECONDITIONS 
-        print("Stack the block")                                   # CHANGES
+    if y.state.clear and RobotArm.get_instance().get_block() == x and x.state.location == y.state.location:  # PRECONDITIONS 
+        print("Stack the block - ", x.symbol)                                   # CHANGES
         x.state.on = y
         x.state.clear = True
         # EMPTY arm; sets block to None
@@ -28,6 +28,8 @@ def stack(x, y):
         x.state.above.append(y)
         for block in y.state.above:
             x.state.above.append(block)
+        # Check if block is at goal
+        x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
     return False
 
@@ -35,11 +37,11 @@ def stack(x, y):
 # ONLY IF the first block IS NOT on the table
 def unstack(x, y):
     '''
-    PRE:    Robot arm must be empty; x must be clear; x must be ON y; x must NOT be on the table
+    PRE:    Robot arm must be empty; x must be clear; x must be ON y; x must NOT be on the table; x must NOT be at goal state
     CHNG:   clear(y); Robot arm HOLDING x; x CLEAR = False; x ON = None; x above = []
     '''
-    if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.clear == True and x.state.on == y and x.state.table == False:
-        print("Unstack the block")
+    if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.clear == True and x.state.on == y and x.state.table == False and x.at_goal == False:
+        print("Unstack the block - ", x.symbol)
         y.state.clear = True
         RobotArm.get_instance().grab_block(x)
         x.state.clear = False
@@ -52,12 +54,13 @@ def unstack(x, y):
 # ONLY IF the first block IS on the table
 def pick_up(x):
     '''
-    PRE:    Robot arm must be empty; x must be on the table; x must be CLEAR
-    CHNG:   x table = False; Robot arm grab x; 
+    PRE:    Robot arm must be empty; x must be on the table; x must be CLEAR; x is not at goal.
+    CHNG:   x table = False; Robot arm grab x; above is empty;
     '''
-    if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.table == True and x.state.clear == True:
-        print("Pick up the block")
+    if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.table == True and x.state.clear == True and x.at_goal == False:
+        print("Pick up the block - ", x.symbol)
         x.state.table = False
+        x.state.above = []
         RobotArm.get_instance().grab_block(x)
         return True
     return False
@@ -69,11 +72,13 @@ def put_down(x, table_loc):
             (New location has been set by MOVE)
     CHNG:   Clear(x); x table = True; Robot arm empty
     '''
-    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.location == table_loc:
-        print("Put down the block")
+    if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.state.location == table_loc:
+        print("Put down the block - " + x.symbol + "Location is: " + str(x.state.location))
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
+        # Check if block is at goal
+        x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
     return False
 
@@ -85,9 +90,9 @@ def move(end_location):
     PRE:    Robot arm must be holding a block and end location must not be block's current location
     CHNG:   block location = end_location
     '''
-    if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().location != end_location:
-        print("Move the block")
-        RobotArm.get_instance().get_block().location = end_location
+    if RobotArm.get_instance().get_state() == ArmState.HOLDING and RobotArm.get_instance().get_block().state.location != end_location:
+        print("Move the block - ", RobotArm.get_instance().get_block().symbol)
+        RobotArm.get_instance().get_block().state.location = end_location
         return True
     return False
 

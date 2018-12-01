@@ -1,9 +1,9 @@
 '''
 RobotArm.py contains definitions and attributes pertaining to the Robot Arm
 '''
-# TODO: Define Actions the arm can perform (Pickup, put down?) Or will this be covered in Actions.py?
-# TODO: Define States of the arm (HOLDING, NOT HOLDING)
 from enum import Enum
+from Blocks import TableState
+from Blocks import Location
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.
@@ -28,9 +28,10 @@ class RobotArm:
         else:
             self.__state = ArmState.EMPTY
             self.__block = None
-            #self.__blocks = []      # List of all registered blocks
-            self.__initial_state = []
-            self.__goal_state = []
+            self.__goal_dict = {}      # List of symbols with matching states
+            self.__initial_state = TableState()
+            self.__goal_state = TableState()
+            self.__solver = None
             RobotArm.__instance = self
 
     # The arm should only grab a block if the arm is already empty
@@ -53,21 +54,9 @@ class RobotArm:
     def get_block(self):
         return self.__block
 
-    # # Return list of registered blocks
-    # def get_registered_blocks(self):
-    #     return self.__blocks
-
-    # # Register a block to add it to the list
-    # def register_block(self, block):
-    #     self.__blocks.append(block)
-
-    # # Reset the registered blocks to an empty list
-    # def reset_registered_blocks(self):
-    #     self.__blocks = []
-
     # Register initial state
-    def register_initial_state(self, initial_blocks):
-        self.__initial_state = initial_blocks
+    def register_initial_state(self, initial_state):
+        self.__initial_state = initial_state
 
     # Returns the initial state
     def get_initial_state(self):
@@ -79,9 +68,61 @@ class RobotArm:
         if self.__goal_state != []:
             return self.__goal_state
 
+    # Return the goal state dictionary
+    def get_goal_dict(self):
+        return self.__goal_dict
+
+    # Register the solver object
+    def register_solver(self, solver):
+        self.__solver = solver
+        # Create dictionary of goal states for each symbol
+        for block in self.__goal_state.L1:
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
+        for block in self.__goal_state.L2:
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
+        for block in self.__goal_state.L3:
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
+        for block in self.__goal_state.L4:
+            above_component = []
+            for item in block.state.above:
+                above_component.append(item.symbol)
+            on = None
+            if block.state.on:
+                on = block.state.on.symbol
+            dict_state = DictState(above_component, on, block.state.clear, block.state.table, block.state.location)
+            self.__goal_dict[block.symbol] = dict_state
+
+    # Returns the solver object
+    def run_solver(self):
+        if (self.__solver != None):
+            self.__solver.solve()
+        else:
+            raise Exception('Solver has not yet been registered!')
+
     # Register goal state by adding each block from a list to the goal state
-    def register_goal_state(self, goal_blocks):
-        self.__goal_state = goal_blocks
+    def register_goal_state(self, goal_state):
+        self.__goal_state = goal_state
 
     # Compare initial and goal state, return true if they match, false otherwise
     def is_goal_state_reached(self):
@@ -115,11 +156,26 @@ class RobotArm:
 
     # Returns if any block is on the given table location
     def is_location_empty(self, table_loc):
-        for block in self.__initial_state:
-            # If a block is in the location and it is not currently being held by the robot arm, return false
-            if block.location == table_loc and block != RobotArm.get_instance().get_block():
-                return False
-        return True
+        if table_loc == Location.L1:
+            if len(self.__solver.current_state.L1) == 0:
+                return True
+        elif table_loc == Location.L2:
+            if len(self.__solver.current_state.L2) == 0:
+                return True
+        elif table_loc == Location.L3:
+            if len(self.__solver.current_state.L3) == 0:
+                return True
+        elif table_loc == Location.L4:
+            if len(self.__solver.current_state.L4) == 0:
+                return True
+        return False
+
+    '''
+    Checks if block is at goal state.
+    Returns true if it is, false otherwise.
+    '''
+    def is_block_at_goal(self, block):
+        return block.state == self.__goal_dict[block.symbol]
 
 
 '''
@@ -128,3 +184,14 @@ ArmState is an Enum that defines whether the robot arm is holding a block or not
 class ArmState(Enum):
     HOLDING = 1
     EMPTY = 0
+
+'''
+DictState represents the states using only symbols
+'''
+class DictState():
+    def __init__(self, above, on, clear, table, location):
+        self.above = above
+        self.on = on
+        self.clear = clear
+        self.table = table
+        self.location = location
