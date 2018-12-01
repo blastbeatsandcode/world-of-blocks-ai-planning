@@ -1,5 +1,5 @@
-from RobotArm import ArmState
-from RobotArm import RobotArm
+from .RobotArm import ArmState
+from .RobotArm import RobotArm
 '''
 Actions describe what can be done in the system.
 For example, the "robot arm" MOVES a block from one location to another.

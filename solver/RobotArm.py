@@ -2,8 +2,8 @@
 RobotArm.py contains definitions and attributes pertaining to the Robot Arm
 '''
 from enum import Enum
-from Blocks import TableState
-from Blocks import Location
+from .Blocks import TableState
+from .Blocks import Location
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.

@@ -1,10 +1,10 @@
 '''
 Pathfinding elements to carry out the problem solving.
 '''
-import Actions
-from Blocks import Location
-from RobotArm import RobotArm
-from RobotArm import DictState
+from . import Actions
+from .Blocks import Location
+from .RobotArm import RobotArm
+from .RobotArm import DictState
 
 class Solver:
     # Holds initial state blocks and goal state blocks
