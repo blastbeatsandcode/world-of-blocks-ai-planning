@@ -37,6 +37,11 @@ class Solver:
         self.get_l3_blocks()
         self.get_l4_blocks()
 
+        print(self.current_state.L1)
+        print(self.current_state.L2)
+        print(self.current_state.L3)
+        print(self.current_state.L4)
+
     '''
     Checks if a block in the "default" state has a goal state of the specified location
     '''
@@ -58,14 +63,16 @@ class Solver:
         Actions.move(Location.L3)
         if len(self.current_state.L3) == 0: # Put down if L3 is empty, stack otherwise
             Actions.put_down(block, Location.L3)
+            self.current_state.L3.append(block)
         else:
             Actions.stack(block, self.current_state.L3[-1])
+            self.current_state.L3.append(block)
 
     '''
     Handle block movement to L1
     '''
     def get_l1_blocks(self):
-        if self.block_in_location(Location.L1): # Check if we have blocks in location
+        if self.block_in_location(Location.L1) and not self.l1_complete: # Check if we have blocks in location
             # Check each block in L4, if it is the table block
             # move it to L1. Otherwise place it on L3 for repositioning
             for block in self.current_state.L4:
@@ -81,27 +88,118 @@ class Solver:
                                 Actions.pick_up(table_block)
                                 Actions.move(Location.L1)
                                 Actions.put_down(table_block, Location.L1)
+                                table_block.at_goal = True
+                                self.current_state.L1.append(table_block)
                                 self.reposition()
                                 self.get_l1_blocks()
                             else:
                                 self.remove_bad_block()
                                 self.get_l1_blocks()
-                    else: # Table block already found, START HERE ==========================
-                        # Find the block that goes on the topmost block, put it there
-                        # Reposition and call get_l1_blocks to get rest of blocks
-                        pass
+                    else:   # Table block already found,
+                            # Find the block that goes on the topmost block, put it there
+                        top_block = self.current_state.L1[-1]
+                        if block.state.on == top_block:
+                            if block.state.table == True:
+                                stack_block = self.current_state.L4.pop()
+                                Actions.pick_up(stack_block)
+                                Actions.move(Location.L1)
+                                Actions.stack(stack_block, Location.L1)
+                                stack_block.at_goal = True
+                                self.current_state.L1.append(stack_block)
+                                self.reposition()
+                                self.get_l1_blocks()
+                            else:
+                                stack_block = self.current_state.L4.pop()
+                                Actions.unstack(stack_block, self.current_state.L1[-1])
+                                Actions.move(Location.L1)
+                                Actions.stack(stack_block, Location.L1)
+                                stack_block.at_goal = True
+                                self.current_state.L1.append(stack_block)
+                                self.reposition()
+                                self.get_l1_blocks()
+                        else:
+                            self.remove_bad_block()
+                            self.get_l1_blocks()
                 else: # block does not belong on specified location
                     self.remove_bad_block()
                     self.get_l1_blocks()
+        else:
+            self.l1_complete = True
 
 
     '''
     Handle block movement to L2
     '''
     def get_l2_blocks(self):
-        if self.block_in_location(Location.L2): # Check if we have blocks in location
+        if self.block_in_location(Location.L2) and not self.l2_complete: # Check if we have blocks in location
+            # Check each block in L4, if it is the table block
+            # move it to L1. Otherwise place it on L3 for repositioning
             for block in self.current_state.L4:
-                print("In L2: ", block.symbol)
+                # If the block has a goal in L1
+                print("BLOCK SYMBOL: ", block.symbol)
+                if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L2:
+                    print("PLEASE HELP ME")
+                    # Check if L1 has any blocks on it; if it does not, find the TABLE block first
+                    if len(self.current_state.L2) == 0: # Table block not found yet
+                        # Find table block
+                        print("GIVE ME A FUCKING BREAK")
+                        if RobotArm.get_instance().get_goal_dict()[block.symbol].table:
+                            table_block = self.current_state.L4[-1] # pull off table block
+                            print ("BITCH GETS HERE")
+                            if table_block.state.table: # pick-up if on table, unstack otherwise
+                                print("OR HERE, BITCH?")
+                                table_block = self.current_state.L4.pop()
+                                Actions.pick_up(table_block)
+                                Actions.move(Location.L2)
+                                Actions.put_down(table_block, Location.L2)
+                                table_block.at_goal = True # Block is at goal state
+                                self.current_state.L2.append(table_block)
+                                self.reposition()
+                                self.get_l2_blocks()
+                            else:
+                                print("WHAT ABOUT HERE?")
+                                table_block = self.current_state.L4.pop()
+                                Actions.unstack(table_block, self.current_state.L4[-1])
+                                Actions.move(Location.L2)
+                                Actions.put_down(table_block, Location.L2)
+                                table_block.at_goal = True
+                                self.reposition()
+                                self.get_l2_blocks()
+                        else:
+                            print("DOES THAT WHORE GET HERE?")
+                            self.remove_bad_block()
+                            self.get_l2_blocks()
+                    else:   # Table block already found,
+                            # Find the block that goes on the topmost block, put it there
+                        top_block = self.current_state.L2[-1]
+                        if block.state.on == top_block:
+                            if block.state.table == True:
+                                stack_block = self.current_state.L4.pop()
+                                Actions.pick_up(stack_block)
+                                Actions.move(Location.L2)
+                                Actions.stack(stack_block, Location.L2)
+                                stack_block.at_goal = True
+                                self.current_state.L2.append(stack_block)
+                                self.reposition()
+                                self.get_l2_blocks()
+                            else:
+                                stack_block = self.current_state.L4.pop()
+                                Actions.unstack(stack_block, self.current_state.L2[-1])
+                                Actions.move(Location.L2)
+                                Actions.stack(stack_block, Location.L2)
+                                stack_block.at_goal = True
+                                self.current_state.L2.append(stack_block)
+                                self.reposition()
+                                self.get_l2_blocks()
+                        else:
+                            self.remove_bad_block()
+                            self.get_l2_blocks()
+                else: # block does not belong on specified location
+                    self.remove_bad_block()
+                    self.get_l2_blocks()
+        else:
+            self.l2_complete = True
+
 
     '''
     Handle block movement to L3
@@ -195,4 +293,5 @@ class Solver:
 
         # This is for testing purposes
         for block in self.current_state.L4:
-            block.block_info()
+            #block.block_info()
+            pass
