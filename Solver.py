@@ -33,9 +33,13 @@ class Solver:
         # If there are any blocks going to L1, find the TABLE block, and then reposition
         # Do this for each stack location
         self.get_l1_blocks()
+        self.reposition()
         self.get_l2_blocks()
+        self.reposition
         self.get_l3_blocks()
+        self.reposition()
         self.get_l4_blocks()
+        self.reposition()
 
         print("DATA FOR L1 ==============")
         for block in self.current_state.L1:
@@ -52,6 +56,8 @@ class Solver:
         print("DATA FOR L4 ==============")
         for block in self.current_state.L4:
             block.block_info()
+
+        print("Was goal state reached? ", self.goal_state_reached())
 
     '''
     Checks if a block in the "default" state has a goal state of the specified location
@@ -104,31 +110,42 @@ class Solver:
                                 Actions.pick_up(table_block)
                                 Actions.move(Location.L1)
                                 Actions.put_down(table_block, Location.L1)
-                                table_block.at_goal = True
+                                table_block.at_goal = True # Block is at goal state
                                 self.current_state.L1.append(table_block)
                                 self.reposition()
                                 self.get_l1_blocks()
                             else:
-                                self.remove_bad_block()
+                                table_block = self.current_state.L4.pop()
+                                Actions.unstack(table_block, self.current_state.L4[-1])
+                                Actions.move(Location.L1)
+                                Actions.put_down(table_block, Location.L1)
+                                self.current_state.L1.append(table_block)
+                                table_block.at_goal = True
+                                self.reposition()
                                 self.get_l1_blocks()
+                        else:
+                            self.remove_bad_block()
+                            self.get_l1_blocks()
                     else:   # Table block already found,
                             # Find the block that goes on the topmost block, put it there
                         top_block = self.current_state.L1[-1]
-                        if block.state.on == top_block:
+                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol)
+                        print(RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block)
+                        if RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol == top_block.symbol:
                             if block.state.table == True:
                                 stack_block = self.current_state.L4.pop()
                                 Actions.pick_up(stack_block)
                                 Actions.move(Location.L1)
-                                Actions.stack(stack_block, Location.L1)
+                                Actions.stack(stack_block, self.current_state.L1[-1])
                                 stack_block.at_goal = True
                                 self.current_state.L1.append(stack_block)
                                 self.reposition()
                                 self.get_l1_blocks()
                             else:
                                 stack_block = self.current_state.L4.pop()
-                                Actions.unstack(stack_block, self.current_state.L1[-1])
+                                Actions.unstack(stack_block, self.current_state.L4[-1])
                                 Actions.move(Location.L1)
-                                Actions.stack(stack_block, Location.L1)
+                                Actions.stack(stack_block, self.current_state.L1[-1])
                                 stack_block.at_goal = True
                                 self.current_state.L1.append(stack_block)
                                 self.reposition()
@@ -156,7 +173,6 @@ class Solver:
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L2:
                     # Check if L1 has any blocks on it; if it does not, find the TABLE block first
                     if len(self.current_state.L2) == 0: # Table block not found yet
-                        print("SYMBOL IS ", block.symbol)
                         # Find table block
                         if RobotArm.get_instance().get_goal_dict()[block.symbol].table:
                             table_block = self.current_state.L4[-1] # pull off table block
@@ -184,11 +200,9 @@ class Solver:
                     else:   # Table block already found,
                             # Find the block that goes on the topmost block, put it there
                         top_block = self.current_state.L2[-1]
-                        print("TESTING TOP BLOCK: ", block.symbol)
                         print(RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol)
                         print(RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block)
                         if RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol == top_block.symbol:
-                            print("Does this work? ", block.symbol)
                             if block.state.table == True:
                                 stack_block = self.current_state.L4.pop()
                                 Actions.pick_up(stack_block)
@@ -200,7 +214,7 @@ class Solver:
                                 self.get_l2_blocks()
                             else:
                                 stack_block = self.current_state.L4.pop()
-                                Actions.unstack(stack_block, self.current_state.L2[-1])
+                                Actions.unstack(stack_block, self.current_state.L4[-1])
                                 Actions.move(Location.L2)
                                 Actions.stack(stack_block, self.current_state.L2[-1])
                                 stack_block.at_goal = True
