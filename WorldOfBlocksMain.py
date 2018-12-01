@@ -2,6 +2,7 @@
 Driver code for World Of Blocks
 '''
 import solver.Actions
+from utils import Constants
 import cocos
 from solver.Solver import Solver
 from solver.Blocks import Block
@@ -9,29 +10,12 @@ from solver.Blocks import Location
 from solver.Blocks import State
 from solver.Blocks import TableState
 from solver.RobotArm import RobotArm
+from game.Drawable import Table, Title, LocationLabel, BlockSprite, RobotArmSprite, InitialStateLabel, GoalStateLabel
 
 #TODO: Look into creating a singleton object within cocos2d that maybe we can use to reference the blocks and the robot arm
 #       This can be initialized in the driver program then, to keep track of whether the robot arm is holding a block or not
 
-# Subclass a Layer and define the logic of the program here:
-class HelloWorld(cocos.layer.Layer):
-    # Constructor for HelloWorld class
-    def __init__(self):
-        super(HelloWorld, self).__init__()
 
-        # Label to display
-        label = cocos.text.Label(
-            'World of Blocks Artificial Intelligence',
-            font_name='Times New Roman',
-            font_size=32,
-            anchor_x='center', anchor_y='center'
-        )
-
-        # Position it at the center of the screen
-        label.position = 640, 360
-
-        # Since the label is a subclass of cocosnode it can be added as a child
-        self.add(label)
 
 # Create some test states
 def create_states_test():
@@ -91,18 +75,48 @@ def create_states_test():
     RobotArm.get_instance().run_solver()
 
 # Insertion point for program
+# TODO: Create the blocks and initalize them
+# TODO: Designate the locations on the table
 if __name__ == "__main__":
     # Initialize the director (a type of game manager, a singleton object)
-    #cocos.director.director.init(width=1280, height=720, caption="World of Blocks - AI With Planning")
+    cocos.director.director.init(width=Constants.WINDOW_WIDTH, height=Constants.WINDOW_HEIGHT, caption="World of Blocks - AI With Planning")
 
-    #Create an instance of the hello world in a layer
-    #hello_layer = HelloWorld()
+    # Create isntances of the layers
+    heading_layer = Title()             # Title
+    table_layer = Table()               # Table
+    loc_1 = LocationLabel(Location.L1)  # L1 Label
+    loc_2 = LocationLabel(Location.L2)  # L2 Label
+    loc_3 = LocationLabel(Location.L3)  # L3 Label
+    loc_4 = LocationLabel(Location.L4)  # L4 Label
+    block_a = BlockSprite("A")
+    block_b = BlockSprite("B")
+
+    # State Labels
+    init_state_label = InitialStateLabel()
+    goal_state_label = GoalStateLabel()
+
+    # Testing new functionality
+    block_b.set_y(13)
+    block_b.set_x(Location.L3)
+
+    arm_layer = RobotArmSprite()        # Robot arm sprite
 
     # Create a scene that contains the layer we just created as a child
-    #main_scene = cocos.scene.Scene(hello_layer)
+    main_scene = cocos.scene.Scene()
+    main_scene.add(heading_layer)
+    main_scene.add(table_layer, 1)
+    main_scene.add(loc_1, 1)
+    main_scene.add(loc_2, 1)
+    main_scene.add(loc_3, 1)
+    main_scene.add(loc_4, 1)
+    main_scene.add(block_a, 2)
+    main_scene.add(block_b, 2)
+    main_scene.add(arm_layer, 2)
+    main_scene.add(init_state_label)
+    main_scene.add(goal_state_label)
 
     # Run the scene
-    #cocos.director.director.run(main_scene)
+    cocos.director.director.run(main_scene)
 
 
 
@@ -111,4 +125,4 @@ if __name__ == "__main__":
     DOING SOME TESTING HERE
     '''
     #abc_test()
-create_states_test()
+    create_states_test()
