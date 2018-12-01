@@ -18,6 +18,12 @@ class Block:
         print("State:")
         print("Table - ", self.state.table)
         print("Clear - ", self.state.clear)
+        on_str = ""
+        if self.state.on == None:
+            on_str += "NONE"
+        else:
+            on_str += self.state.on.symbol
+        print("On - ", on_str)
         above_str = "["
         for block in self.state.above:
             above_str += " " + block.symbol + ","

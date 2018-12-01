@@ -333,6 +333,9 @@ class Solver:
         # set the table block on L1 and pop all the rest off L4 and stack them on L3
         # When L4 is empty, put down L1 block onto L4
         # Then iterate based on stack order in goal
+        if self.stack_at_goal(Location.L4) or self.goal_state_reached():
+            self.l4_complete = True
+            
         if not self.l4_complete:
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
@@ -371,11 +374,12 @@ class Solver:
                 elif not self.table_block_found_l4(): # Handle blocks that we haven't dealt with yet if we haven't found table block
                     self.remove_bad_block()
                     self.get_l4_blocks()
-                else: 
+                else:
                     # Search for blocks to go on top of the base table block
                     l4_stack = list(reversed(self.current_state.L4))
                     for item in l4_stack:
                         if not item.at_goal:
+                            self.state_of_l4()
                             move_block = self.current_state.L4.pop()
                             if self.tops_last_goal_l4(move_block):# Check if this block goes on the previous block at goal
                                 Actions.unstack(move_block, self.current_state.L4[-1])
@@ -402,9 +406,9 @@ class Solver:
                                 next_block.block_info()
                                 self.reposition()
                                 self.get_l4_blocks()
-                            #else: # If this block does not go on top, move to L3 until we find it
-                            #    self.remove_bad_block()
-                            #    self.get_l4_blocks()
+                            else: # If this block does not go on top, move to L3 until we find it
+                                self.remove_bad_block()
+                                self.get_l4_blocks()
         self.reposition()
         self.l4_complete = True
 
@@ -431,6 +435,37 @@ class Solver:
             if block.at_goal:
                 return True
         return False
+
+    '''
+    Check if stack is already at goal
+    '''
+    def stack_at_goal(self, loc):
+        goals = RobotArm.get_instance().get_goal_dict()
+
+        # for key, value in goals.items():
+        #     print("KEY: ", key)
+        #     print("ON: ", value.on)
+        #     print("CLEAR: ", value.clear)
+        #     print("TABLE: ", value.table)
+
+        stack_at_goal = True
+        if loc == Location.L1:
+            for block in self.current_state.L1:
+                if not block.state == goals[block.symbol]:
+                    stack_at_goal = False
+        elif loc == Location.L2:
+            for block in self.current_state.L2:
+                if not block.state == goals[block.symbol]:
+                    stack_at_goal = False
+        elif loc == Location.L3:
+            for block in self.current_state.L3:
+                if not block.state == goals[block.symbol]:
+                    stack_at_goal = False
+        elif loc == Location.L4:
+            for block in self.current_state.L4:
+                if not block.state == goals[block.symbol]:
+                    stack_at_goal = False
+        return stack_at_goal
 
 
     '''
