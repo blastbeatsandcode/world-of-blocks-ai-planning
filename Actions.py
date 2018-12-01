@@ -55,11 +55,12 @@ def unstack(x, y):
 def pick_up(x):
     '''
     PRE:    Robot arm must be empty; x must be on the table; x must be CLEAR
-    CHNG:   x table = False; Robot arm grab x; 
+    CHNG:   x table = False; Robot arm grab x; above is empty;
     '''
     if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.table == True and x.state.clear == True:
         print("Pick up the block - ", x.symbol)
         x.state.table = False
+        x.state.above = []
         RobotArm.get_instance().grab_block(x)
         return True
     return False
@@ -72,7 +73,7 @@ def put_down(x, table_loc):
     CHNG:   Clear(x); x table = True; Robot arm empty
     '''
     if RobotArm.get_instance().get_block() == x and RobotArm.get_instance().is_location_empty(table_loc) and x.state.location == table_loc:
-        print("Put down the block - ", x.symbol)
+        print("Put down the block - " + x.symbol + "Location is: " + str(x.state.location))
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
