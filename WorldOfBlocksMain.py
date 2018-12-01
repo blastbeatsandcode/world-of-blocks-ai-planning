@@ -10,7 +10,7 @@ from solver.Blocks import Location
 from solver.Blocks import State
 from solver.Blocks import TableState
 from solver.RobotArm import RobotArm
-from game.Drawable import Table, Title, LocationLabel
+from game.Drawable import Table, Title, LocationLabel, BlockSprite, RobotArmSprite, InitialStateLabel, GoalStateLabel
 
 #TODO: Look into creating a singleton object within cocos2d that maybe we can use to reference the blocks and the robot arm
 #       This can be initialized in the driver program then, to keep track of whether the robot arm is holding a block or not
@@ -88,6 +88,18 @@ if __name__ == "__main__":
     loc_2 = LocationLabel(Location.L2)  # L2 Label
     loc_3 = LocationLabel(Location.L3)  # L3 Label
     loc_4 = LocationLabel(Location.L4)  # L4 Label
+    block_a = BlockSprite("A")
+    block_b = BlockSprite("B")
+
+    # State Labels
+    init_state_label = InitialStateLabel()
+    goal_state_label = GoalStateLabel()
+
+    # Testing new functionality
+    block_b.set_y(13)
+    block_b.set_x(Location.L3)
+
+    arm_layer = RobotArmSprite()        # Robot arm sprite
 
     # Create a scene that contains the layer we just created as a child
     main_scene = cocos.scene.Scene()
@@ -97,6 +109,11 @@ if __name__ == "__main__":
     main_scene.add(loc_2, 1)
     main_scene.add(loc_3, 1)
     main_scene.add(loc_4, 1)
+    main_scene.add(block_a, 2)
+    main_scene.add(block_b, 2)
+    main_scene.add(arm_layer, 2)
+    main_scene.add(init_state_label)
+    main_scene.add(goal_state_label)
 
     # Run the scene
     cocos.director.director.run(main_scene)
