@@ -4,6 +4,8 @@ RobotArm.py contains definitions and attributes pertaining to the Robot Arm
 from enum import Enum
 from .Blocks import TableState
 from .Blocks import Location
+from utils import Constants
+from game.Drawable import BlockSprite
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.
@@ -32,6 +34,7 @@ class RobotArm:
             self.__initial_state = TableState()
             self.__goal_state = TableState()
             self.__solver = None
+            self.__sprite_dict = {}
             RobotArm.__instance = self
 
     # The arm should only grab a block if the arm is already empty
@@ -123,6 +126,32 @@ class RobotArm:
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_state):
         self.__goal_state = goal_state
+
+    '''
+    Register a block with a corresponding sprite; add it to dictionary
+    '''
+    def register_block_sprite(self, block):
+        # Create the block sprite
+        block_sprite = BlockSprite(block.symbol)
+        # Set the location of the block sprite
+        block_x = 0
+        if block.state.location == Location.L1:
+            block_x = Constants.LOCATION_LABEL_SPACING * 0
+        elif block.state.location == Location.L2:
+            block_x = Constants.LOCATION_LABEL_SPACING * 1
+        elif block.state.location == Location.L3:
+            block_x = Constants.LOCATION_LABEL_SPACING * 2
+        elif block.state.location == Location.L4:
+            block_x = Constants.LOCATION_LABEL_SPACING * 3
+        block_sprite.position = block_x, (Constants.BLOCK_TABLE_HEIGHT + (Constants.BLOCK_HEIGHT * len(block.state.above)))
+        block_sprite.position = block_x, Constants.BLOCK_HEIGHT * len(block.state.above)
+        self.__sprite_dict[block.symbol] = block_sprite
+
+    '''
+    Returns the sprite dictionary
+    '''
+    def get_sprite_dict(self):
+        return self.__sprite_dict
 
     # Compare initial and goal state, return true if they match, false otherwise
     def is_goal_state_reached(self):
