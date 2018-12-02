@@ -132,10 +132,8 @@ class RobotArm:
             len(self.__initial_state) == len(self.__goal_state)):
             temp_goal_state = self.__goal_state # Temporary list to contain the goal state
             for init_block in self.__initial_state:
-                #print("Initial block: ", init_block.symbol)
                 matches_symbol = False  # Check each goal block to see if symbol matches
                 for goal_block in temp_goal_state:
-                    #print("Goal block: ", goal_block.symbol)
                     if init_block.symbol == goal_block.symbol: # Check for symbol matches
                         matches_symbol = True
                         if init_block.state != goal_block.state: # If the states do not match, goal state is not reached

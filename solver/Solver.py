@@ -101,8 +101,8 @@ class Solver:
         # Do this for each stack location
         self.get_l1_blocks()
         self.get_l2_blocks()
-        self.get_l3_blocks()
-        self.get_l4_blocks()
+        #self.get_l3_blocks()
+        #self.get_l4_blocks()
 
         print("DATA FOR L1 ==============")
         for block in self.current_state.L1:
@@ -188,10 +188,10 @@ class Solver:
                     # Check if L1 has any blocks on it; if it does not, find the TABLE block first
                     if len(self.current_state.L1) == 0: # Table block not found yet
                         # Find table block
+                        # START HERE, IT THINKS C IS ON THE TABLE OR SOME SHIT?
                         if RobotArm.get_instance().get_goal_dict()[block.symbol].table:
-                            table_block = self.current_state.L4[-1] # pull off table block
+                            table_block = self.current_state.L4.pop() # pull off table block
                             if table_block.state.table: # pick-up if on table, unstack otherwise
-                                table_block = self.current_state.L4.pop()
                                 Actions.pick_up(table_block)
                                 Actions.move(Location.L1)
                                 Actions.put_down(table_block, Location.L1)
@@ -199,9 +199,8 @@ class Solver:
                                 self.current_state.L1.append(table_block)
                                 self.reposition()
                                 self.get_l1_blocks()
-                            else:
-                                table_block = self.current_state.L4.pop()
-                                Actions.unstack(table_block, self.current_state.L1[-1])
+                            else: # unstack because it is not on bottom of L4
+                                Actions.unstack(table_block, self.current_state.L4[-1])
                                 Actions.move(Location.L1)
                                 Actions.put_down(table_block, Location.L1)
                                 self.current_state.L1.append(table_block)
@@ -539,14 +538,15 @@ class Solver:
                         Actions.stack(block, self.current_state.L4[-1])
                     self.current_state.L4.append(block) # Append block to L4 stack
             else: # There is only one block on stack
-                block = self.current_state.L1.pop() # Pull off block from stack
-                Actions.pick_up(block)
-                Actions.move(Location.L4)
-                if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
-                    Actions.put_down(block, Location.L4)
-                else:
-                    Actions.stack(block, self.current_state.L4[-1])
-                self.current_state.L4.append(block)
+                if not self.current_state.L1[-1].at_goal:
+                    block = self.current_state.L1.pop() # Pull off block from stack
+                    Actions.pick_up(block)
+                    Actions.move(Location.L4)
+                    if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
+                        Actions.put_down(block, Location.L4)
+                    else:
+                        Actions.stack(block, self.current_state.L4[-1])
+                    self.current_state.L4.append(block)
 
         
         if not self.l2_complete and len(self.current_state.L2) > 0: # If L2 has not be solved and there are blocks on it
@@ -569,14 +569,16 @@ class Solver:
                         Actions.stack(block, self.current_state.L4[-1])
                     self.current_state.L4.append(block) # Append block to L4 stack
             else: # There is only one block on stack
-                block = self.current_state.L2.pop() # Pull off block from stack
-                Actions.pick_up(block)
-                Actions.move(Location.L4)
-                if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
-                    Actions.put_down(block, Location.L4)
-                else:
-                    Actions.stack(block, self.current_state.L4[-1])
-                self.current_state.L4.append(block)
+                if not self.current_state.L2[-1].at_goal:
+                    block = self.current_state.L2.pop() # Pull off block from stack
+                    Actions.pick_up(block)
+                    Actions.move(Location.L4)
+                    if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
+                        Actions.put_down(block, Location.L4)
+                    else:
+                        Actions.stack(block, self.current_state.L4[-1])
+                    self.current_state.L4.append(block)
+
 
         if not self.l3_complete and len(self.current_state.L3) > 0: # If L3 has not be solved and there are blocks on it
             if  len(self.current_state.L3) > 1: # If there is more than one block on stack
@@ -598,11 +600,12 @@ class Solver:
                         Actions.stack(block, self.current_state.L4[-1])
                     self.current_state.L4.append(block) # Append block to L4 stack
             else: # There is only one block on stack
-                block = self.current_state.L3.pop() # Pull off block from stack
-                Actions.pick_up(block)
-                Actions.move(Location.L4)
-                if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
-                    Actions.put_down(block, Location.L4)
-                else:
-                    Actions.stack(block, self.current_state.L4[-1])
-                self.current_state.L4.append(block)
+                if not self.current_state.L3[-1].at_goal:
+                    block = self.current_state.L3.pop() # Pull off block from stack
+                    Actions.pick_up(block)
+                    Actions.move(Location.L4)
+                    if len(self.current_state.L4) == 0: # If there are no blocks on L4, put down. Stack otherwise
+                        Actions.put_down(block, Location.L4)
+                    else:
+                        Actions.stack(block, self.current_state.L4[-1])
+                    self.current_state.L4.append(block)
