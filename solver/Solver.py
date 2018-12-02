@@ -102,7 +102,7 @@ class Solver:
         self.get_l1_blocks()
         self.get_l2_blocks()
         self.get_l3_blocks()
-        #self.get_l4_blocks()
+        self.get_l4_blocks()
 
         print("DATA FOR L1 ==============")
         for block in self.current_state.L1:
