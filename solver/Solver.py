@@ -101,7 +101,7 @@ class Solver:
         # Do this for each stack location
         self.get_l1_blocks()
         self.get_l2_blocks()
-        #self.get_l3_blocks()
+        self.get_l3_blocks()
         #self.get_l4_blocks()
 
         print("DATA FOR L1 ==============")
@@ -161,18 +161,21 @@ class Solver:
     '''
     def remove_bad_block_other(self):
         if len(self.current_state.L4) > 1:
-            # Unstack the block and move it to L3
+            # Unstack the block and move it to L2
             block = self.current_state.L4.pop()
             Actions.unstack(block, self.current_state.L4[-1])
             Actions.move(Location.L2)
-            if len(self.current_state.L2) == 0: # Put down if L3 is empty, stack otherwise
+            if len(self.current_state.L2) == 0: # Put down if L2 is empty, stack otherwise
                 Actions.put_down(block, Location.L2)
                 self.current_state.L2.append(block)
+                return True
             else:
                 Actions.stack(block, self.current_state.L2[-1])
                 self.current_state.L2.append(block)
+                return True
         else: # We have reached the bottom of L4, reposition blocks
             self.reposition()
+            return False
 
     '''
     Handle block movement to L1
@@ -244,9 +247,6 @@ class Solver:
             # check if stack is at goal state
             if self.stack_at_goal(Location.L1):
                 self.l1_complete = True
-            if self.l1_complete:
-                for block in self.current_state.L1:
-                    print(block.symbol)
 
 
     '''
@@ -326,12 +326,13 @@ class Solver:
     def get_l3_blocks(self):
         if self.block_in_location(Location.L3) and not self.l3_complete: # Check if we have blocks in location
             # Check each block in L4, if it is the table block
-            # move it to L3. Otherwise place it on L1 for repositioning
+            # move it to L1. Otherwise place it on L3 for repositioning
+            #raise Exception("Stops here!")
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
-                # If the block has a goal in L3
+                # If the block has a goal in L1
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L3:
-                    # Check if L3 has any blocks on it; if it does not, find the TABLE block first
+                    # Check if L1 has any blocks on it; if it does not, find the TABLE block first
                     if len(self.current_state.L3) == 0: # Table block not found yet
                         # Find table block
                         if RobotArm.get_instance().get_goal_dict()[block.symbol].table:
@@ -360,7 +361,7 @@ class Solver:
                     else:   # Table block already found,
                             # Find the block that goes on the topmost block, put it there
                         top_block = self.current_state.L3[-1]
-                        if RobotArm.get_instance().get_goal_dict()[block.symbol].on.symbol == top_block.symbol:
+                        if RobotArm.get_instance().get_goal_dict()[block.symbol].on == top_block.symbol:
                             if block.state.table == True:
                                 stack_block = self.current_state.L4.pop()
                                 Actions.pick_up(stack_block)
@@ -518,7 +519,7 @@ class Solver:
     Iterate over each stack location and move the blocks to L4 to get them to a "default" state.
     '''
     def reposition(self):
-        if (not self.l1_complete) and len(self.current_state.L1) > 0: # If L1 has not be solved and there are blocks on it
+        if len(self.current_state.L1) > 0: # If L1 has not be solved and there are blocks on it
             if len(self.current_state.L1) > 1: # If there is more than one block on stack
                 l1_reverse = list(reversed(self.current_state.L1))
                 for item in l1_reverse:
@@ -549,7 +550,7 @@ class Solver:
                     self.current_state.L4.append(block)
 
         
-        if not self.l2_complete and len(self.current_state.L2) > 0: # If L2 has not be solved and there are blocks on it
+        if len(self.current_state.L2) > 0: # If L2 has not be solved and there are blocks on it
             if  len(self.current_state.L2) > 1: # If there is more than one block on stack
                 l2_reverse = list(reversed(self.current_state.L2))
                 for item in l2_reverse:
@@ -580,7 +581,7 @@ class Solver:
                     self.current_state.L4.append(block)
 
 
-        if not self.l3_complete and len(self.current_state.L3) > 0: # If L3 has not be solved and there are blocks on it
+        if len(self.current_state.L3) > 0: # If L3 has not be solved and there are blocks on it
             if  len(self.current_state.L3) > 1: # If there is more than one block on stack
                 l3_reverse = list(reversed(self.current_state.L3))
                 for item in l3_reverse:
