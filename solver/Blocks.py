@@ -25,6 +25,8 @@ class Block:
             on_str += self.state.on.symbol
         print("On - ", on_str)
         above_str = "["
+        if not self.state.above:
+            self.state.above = []
         for block in self.state.above:
             above_str += " " + block.symbol + ","
         if self.state.above == []:

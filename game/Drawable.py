@@ -1,4 +1,5 @@
 import cocos
+import pyglet
 from cocos.director import director
 from utils import Constants
 from solver.Blocks import Location
@@ -185,3 +186,40 @@ class GoalStateLabel(cocos.layer.Layer):
 
         # Since the label is a subclass of cocosnode it can be added as a child
         self.add(label)
+
+# User input for initial state
+class InitialStateEntry(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+        self.text = cocos.text.Label("", x=100, y=280)
+        self.keys_pressed = ""
+        self.update_text()
+        self.add(self.text)
+
+    def update_text(self):
+        self.text.element.text = self.keys_pressed
+
+    def on_key_press(self, k, m):
+        if k == pyglet.window.key.ENTER:
+            print("You Entered: {}").format(self.keys_pressed)
+            # cocos.director.director.replace(FadeTransition(main_scene, 1))  # disabled for testing
+            #cocos.director.director.scene.end()  # added for testing
+        else:
+            kk = pyglet.window.key.symbol_string(k)
+            if kk == "SPACE":
+                kk = " "
+            if kk == "BACKSPACE":
+                self.keys_pressed = self.keys_pressed[:-1]
+            else:
+                # ignored_keys can obviously be expanded
+                ignored_keys = ("LSHIFT", "RSHIFT", "LCTRL", "RCTRL", "LCOMMAND", 
+                                "RCOMMAND", "LOPTION", "ROPTION")
+                if kk not in ignored_keys:
+                    self.keys_pressed = self.keys_pressed + kk
+            self.update_text()
+
+
+
+# User input for goal state
+class GoalStateEntry(cocos.layer.Layer):
+    pass
