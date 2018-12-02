@@ -51,11 +51,28 @@ def ask_for_user_states():
     l4_goal = input()
     l4_goal_stack = create_stack(l4_goal, Location.L4)
 
+    # Create the initial and goal states and register them to the robot arm
+    initial_state = TableState(l1_init_stack, l2_init_stack, l3_init_stack, l4_init_stack)
+    goal_state = TableState(l1_goal_stack, l2_goal_stack, l3_goal_stack, l4_goal_stack)
+
+    # Register these states to the robot arm
+    RobotArm.get_instance().register_initial_state(initial_state)
+    RobotArm.get_instance().register_goal_state(goal_state)
+
+    # Create the solver, register it to RobotArm, and solve
+    solver = Solver(RobotArm.get_instance().get_initial_state(),
+                    RobotArm.get_instance().get_goal_state())
+    RobotArm.get_instance().register_solver(solver)
+    RobotArm.get_instance().run_solver()
+
+
 def create_stack(blocks, loc):
-    blocks = blocks.strip() # Remove any whitespace
+    blocks = blocks.replace(" ", "") # Remove all white space
     symbols = blocks.split(",") # delimit by commas
     block_stack = []
     # Create blocks and add them to stack
+    if blocks == "":
+        return []
     for symbol in symbols:
         block = Block(symbol)
         block_stack.append(block)
@@ -63,7 +80,7 @@ def create_stack(blocks, loc):
     if len(block_stack) > 0:
         for block in block_stack:
             if block == block_stack[0]: # Handle table block
-                block_stack[0].state = State(None, None, False, True, loc)
+                block_stack[0].state = State([], None, False, True, loc)
             else:
                 idx = block_stack.index(block) # Get the index of the block in the stack
                 above_list = []
@@ -74,10 +91,6 @@ def create_stack(blocks, loc):
                 block.state = State(above_list, block_stack[idx - 1], False, False, loc)
 
         block_stack[-1].state.clear = True # Topmost block is always clear
-
-    for block in block_stack:
-        block.block_info()
-
     return block_stack
 
 
