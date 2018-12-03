@@ -5,6 +5,7 @@ from . import Actions
 from .Blocks import Location
 from .RobotArm import RobotArm
 from .RobotArm import DictState
+from cocos.actions import MoveTo
 
 class Solver:
     # Holds initial state blocks and goal state blocks
@@ -96,7 +97,6 @@ class Solver:
     def solve(self):
         # Check if blocks are already in order
         if self.stack_at_goal(Location.L1) and self.stack_at_goal(Location.L2) and self.stack_at_goal(Location.L3) and self.stack_at_goal(Location.L4):
-            self.goal_state_reached = True
             print("Blocks are already in order!")
             return
 
@@ -119,23 +119,9 @@ class Solver:
         self.get_l3_blocks()
         self.get_l4_blocks()
 
-        print("DATA FOR L1 ==============")
-        for block in self.current_state.L1:
-            block.block_info()
-        
-        print("DATA FOR L2 ==============")
-        for block in self.current_state.L2:
-            block.block_info()
-
-        print("DATA FOR L3 ==============")
-        for block in self.current_state.L3:
-            block.block_info()
-
-        print("DATA FOR L4 ==============")
-        for block in self.current_state.L4:
-            block.block_info()
-
         print("Was goal state reached? ", self.goal_state_reached())
+
+        RobotArm.get_instance().get_sprite().do(MoveTo((550 + 400, 785), 4))
 
     '''
     Checks if a block in the "default" state has a goal state of the specified location

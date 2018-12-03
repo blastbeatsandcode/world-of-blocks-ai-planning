@@ -10,8 +10,8 @@ from solver.Blocks import Location
 from solver.Blocks import State
 from solver.Blocks import TableState
 from solver.RobotArm import RobotArm
-from game.Drawable import (Table, Title, LocationLabel, BlockSprite, RobotArmSprite,
-    InitialStateLabel, GoalStateLabel, InitialStateEntry, GoalStateEntry)
+from solver.Drawable import (Table, Title, LocationLabel, BlockSprite, RobotArmSprite,
+    InitialStateLabel, GoalStateLabel, InitialStateEntry, GoalStateEntry, SolveButton)
 import ctypes
 
 '''
@@ -63,7 +63,7 @@ def ask_for_user_states():
     solver = Solver(RobotArm.get_instance().get_initial_state(),
                     RobotArm.get_instance().get_goal_state())
     RobotArm.get_instance().register_solver(solver)
-    RobotArm.get_instance().run_solver()
+    # RobotArm.get_instance().run_solver()
 
 
 def create_stack(blocks, loc, is_init = False):
@@ -98,6 +98,13 @@ def create_stack(blocks, loc, is_init = False):
 
     return block_stack
 
+class MainLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+    def update(self, dt):
+        self.draw()
+
 # Insertion point for program
 if __name__ == "__main__":
     # Initialize the director (a type of game manager, a singleton object)
@@ -121,30 +128,48 @@ if __name__ == "__main__":
     init_entry = InitialStateEntry()
     goal_entry = GoalStateEntry()
 
-    arm_layer = RobotArmSprite()        # Robot arm sprite
+    # Solve button
+    solve_btn = SolveButton(RobotArm.get_instance())
 
-    # Create a scene that contains the layer we just created as a child
+    arm_layer = RobotArmSprite()        # Robot arm sprite
+    RobotArm.get_instance().register_sprite(arm_layer.sprite)
+
+    # Main scene to register to the director
     main_scene = cocos.scene.Scene()
-    main_scene.add(heading_layer)
-    main_scene.add(table_layer, 1)
-    main_scene.add(loc_1, 1)
-    main_scene.add(loc_2, 1)
-    main_scene.add(loc_3, 1)
-    main_scene.add(loc_4, 1)
-    main_scene.add(arm_layer, 2)
+    # Layer to hold everything
+    game_layer = MainLayer()
+    game_layer.is_event_handler = True
+
+
+    # Add components
+    game_layer.add(heading_layer)
+    game_layer.add(table_layer, 1)
+    game_layer.add(loc_1, 1)
+    game_layer.add(loc_2, 1)
+    game_layer.add(loc_3, 1)
+    game_layer.add(loc_4, 1)
+    game_layer.add(arm_layer, 2)
+    game_layer.add(solve_btn, 2)
 
     # Add blocks from robot arm
     sprites = RobotArm.get_instance().get_sprite_dict()
     for key in sprites:
-        main_scene.add(sprites[key], 10)
+        game_layer.add(sprites[key], 10)
 
     # Add state labels
-    main_scene.add(init_state_label)
-    main_scene.add(goal_state_label)
+    game_layer.add(init_state_label)
+    game_layer.add(goal_state_label)
 
     # Add state entry
-    main_scene.add(init_entry)
-    main_scene.add(goal_entry)
+    game_layer.add(init_entry)
+    game_layer.add(goal_entry)
+
+    # add game layer to main scene
+    main_scene.add(game_layer)
+
+    main_scene.schedule_interval(game_layer.update, 1/60)
+
+    RobotArm.get_instance().register_main_scene(main_scene)
 
     # Run the scene
     cocos.director.director.run(main_scene)

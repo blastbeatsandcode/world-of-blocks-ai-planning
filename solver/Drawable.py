@@ -1,8 +1,9 @@
 import cocos
-import pyglet
+from cocos.actions import *
 from cocos.director import director
 from utils import Constants
 from solver.Blocks import Location
+import threading
 
 # Sprite for the table
 class Table(cocos.layer.Layer):
@@ -57,16 +58,32 @@ class BlockSprite(cocos.layer.Layer):
         else:
             raise Exception("Invalid location given!")
 
+class SolveButton(cocos.layer.Layer):
+    # Set this to be able to handle clicks
+    is_event_handler = True
+    def __init__(self, arm):
+        super().__init__()
+        self.spr = cocos.sprite.Sprite("res/solve_button.png")
+        self.spr.position = 200, Constants.TABLE_Y
+        self.arm = arm
+        self.add(self.spr)
+    
+    # Handle when the button is pressed
+    def on_mouse_press(self, x, y, button, modifiers):
+        print(str(x) + " , " + str(y))
+        if x > 75 and x < 325 and y > 50 and y < 145:
+            threading.Thread(target=self.arm.run_solver).start()
+            #self.arm.run_solver()
+
 
 # Sprite for the blocks
 class RobotArmSprite(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
-        
-        spr = cocos.sprite.Sprite("res/robot_arm.png")
+        self.sprite = cocos.sprite.Sprite("res/robot_arm.png")
         # Set the location of the block
-        spr.position = Constants.ROBOT_ARM_X, Constants.ROBOT_ARM_Y
-        self.add(spr)
+        self.sprite.position = Constants.ROBOT_ARM_X, Constants.ROBOT_ARM_Y
+        self.add(self.sprite)
 
 # Layer for the location labels
 class LocationLabel(cocos.layer.Layer):
@@ -149,7 +166,7 @@ class Title(cocos.layer.Layer):
 
 # Initial State Layer
 class InitialStateLabel(cocos.layer.Layer):
-    # Constructor for HelloWorld class
+    # Constructor for HelloWorld class./github.com/blastbeatsandcode/blastbeatsandcode-website/public/img
     def __init__(self):
         super().__init__()
 
