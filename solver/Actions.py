@@ -138,7 +138,7 @@ def move_sprite_to_location(block, loc):
 
     sprites[block.symbol].do(MoveTo((x_val, y_val), 1))
     RobotArm.get_instance().get_sprite().do(MoveTo((x_val + 550, y_val + 120), 1))
-    sleep(2.0)
+    #sleep(2.0)
 
 '''
 Handle moving sprite to robot arm
@@ -150,5 +150,5 @@ def move_sprite_to_arm(block):
 
     RobotArm.get_instance().get_sprite().do(MoveTo((550 + 400, 785), 1))
     sprites[block.symbol].do(MoveTo((400, 660), 1))
-    sleep(2.0)
+    #sleep(2.0)
 
