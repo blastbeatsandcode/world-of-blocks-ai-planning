@@ -18,6 +18,7 @@ L1_X = 550
 L2_X = 750
 L3_X = 950
 L4_X = 1150
+LOCATION_LABEL_SPACING = 200
 
 # height of blocks on the table
 BLOCK_TABLE_HEIGHT = TABLE_Y

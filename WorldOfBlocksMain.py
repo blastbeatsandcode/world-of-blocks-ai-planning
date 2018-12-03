@@ -10,8 +10,8 @@ from solver.Blocks import Location
 from solver.Blocks import State
 from solver.Blocks import TableState
 from solver.RobotArm import RobotArm
-from game.Drawable import (Table, Title, LocationLabel, BlockSprite, RobotArmSprite,
-    InitialStateLabel, GoalStateLabel, InitialStateEntry, GoalStateEntry)
+from solver.Drawable import (Table, Title, LocationLabel, BlockSprite, RobotArmSprite,
+    InitialStateLabel, GoalStateLabel, InitialStateEntry, GoalStateEntry, SolveButton)
 import ctypes
 
 '''
@@ -26,16 +26,16 @@ def ask_for_user_states():
     print("There are a total of four locations on the table, L1-L4.")
     print("L1 INITIAL STATE:")
     l1_init = input()
-    l1_init_stack = create_stack(l1_init, Location.L1)
+    l1_init_stack = create_stack(l1_init, Location.L1, True)
     print("L2 INITIAL STATE:")
     l2_init = input()
-    l2_init_stack = create_stack(l2_init, Location.L2)
+    l2_init_stack = create_stack(l2_init, Location.L2, True)
     print("L3 INITIAL STATE:")
     l3_init = input()
-    l3_init_stack = create_stack(l3_init, Location.L3)
+    l3_init_stack = create_stack(l3_init, Location.L3, True)
     print("L4 INITIAL STATE:")
     l4_init = input()
-    l4_init_stack = create_stack(l4_init, Location.L4)
+    l4_init_stack = create_stack(l4_init, Location.L4, True)
 
     print("Next, please input the GOAL STATE")
     print("L1 GOAL STATE:")
@@ -63,12 +63,13 @@ def ask_for_user_states():
     solver = Solver(RobotArm.get_instance().get_initial_state(),
                     RobotArm.get_instance().get_goal_state())
     RobotArm.get_instance().register_solver(solver)
-    RobotArm.get_instance().run_solver()
+    # RobotArm.get_instance().run_solver()
 
 
-def create_stack(blocks, loc):
+def create_stack(blocks, loc, is_init = False):
     blocks = blocks.replace(" ", "") # Remove all white space
     symbols = blocks.split(",") # delimit by commas
+    print("BLOCKS VALUE IS: ", blocks)
     block_stack = []
     # Create blocks and add them to stack
     if blocks == "":
@@ -91,17 +92,25 @@ def create_stack(blocks, loc):
                 block.state = State(above_list, block_stack[idx - 1], False, False, loc)
 
         block_stack[-1].state.clear = True # Topmost block is always clear
+    if is_init: # Register only the initial state blocks
+        for block in block_stack:
+            RobotArm.get_instance().register_block_sprite(block)
+
     return block_stack
 
-# Insertion point for program
-# TODO: Create the blocks and initalize them
-# TODO: Designate the locations on the table
-if __name__ == "__main__":
-    # Ask for user input to get states
-    ask_for_user_states()
+class MainLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
 
+    def update(self, dt):
+        self.draw()
+
+# Insertion point for program
+if __name__ == "__main__":
     # Initialize the director (a type of game manager, a singleton object)
     cocos.director.director.init(width=Constants.WINDOW_WIDTH, height=Constants.WINDOW_HEIGHT, caption="World of Blocks - AI With Planning")
+    # Ask for user input to get states
+    ask_for_user_states()
 
     # Create isntances of the layers
     heading_layer = Title()             # Title
@@ -110,8 +119,6 @@ if __name__ == "__main__":
     loc_2 = LocationLabel(Location.L2)  # L2 Label
     loc_3 = LocationLabel(Location.L3)  # L3 Label
     loc_4 = LocationLabel(Location.L4)  # L4 Label
-    block_a = BlockSprite("A")
-    block_b = BlockSprite("B")
 
     # State Labels
     init_state_label = InitialStateLabel()
@@ -121,31 +128,48 @@ if __name__ == "__main__":
     init_entry = InitialStateEntry()
     goal_entry = GoalStateEntry()
 
-    # Testing new functionality
-    block_b.set_y(13)
-    block_b.set_x(Location.L3)
+    # Solve button
+    solve_btn = SolveButton(RobotArm.get_instance())
 
     arm_layer = RobotArmSprite()        # Robot arm sprite
+    RobotArm.get_instance().register_sprite(arm_layer.sprite)
 
-    # Create a scene that contains the layer we just created as a child
+    # Main scene to register to the director
     main_scene = cocos.scene.Scene()
-    main_scene.add(heading_layer)
-    main_scene.add(table_layer, 1)
-    main_scene.add(loc_1, 1)
-    main_scene.add(loc_2, 1)
-    main_scene.add(loc_3, 1)
-    main_scene.add(loc_4, 1)
-    main_scene.add(block_a, 2)
-    main_scene.add(block_b, 2)
-    main_scene.add(arm_layer, 2)
+    # Layer to hold everything
+    game_layer = MainLayer()
+    game_layer.is_event_handler = True
+
+
+    # Add components
+    game_layer.add(heading_layer)
+    game_layer.add(table_layer, 1)
+    game_layer.add(loc_1, 1)
+    game_layer.add(loc_2, 1)
+    game_layer.add(loc_3, 1)
+    game_layer.add(loc_4, 1)
+    game_layer.add(arm_layer, 2)
+    game_layer.add(solve_btn, 2)
+
+    # Add blocks from robot arm
+    sprites = RobotArm.get_instance().get_sprite_dict()
+    for key in sprites:
+        game_layer.add(sprites[key], 10)
 
     # Add state labels
-    main_scene.add(init_state_label)
-    main_scene.add(goal_state_label)
+    game_layer.add(init_state_label)
+    game_layer.add(goal_state_label)
 
     # Add state entry
-    main_scene.add(init_entry)
-    main_scene.add(goal_entry)
+    game_layer.add(init_entry)
+    game_layer.add(goal_entry)
+
+    # add game layer to main scene
+    main_scene.add(game_layer)
+
+    main_scene.schedule_interval(game_layer.update, 1/60)
+
+    RobotArm.get_instance().register_main_scene(main_scene)
 
     # Run the scene
     cocos.director.director.run(main_scene)

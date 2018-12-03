@@ -1,5 +1,12 @@
 from .RobotArm import ArmState
 from .RobotArm import RobotArm
+from .Blocks import Location
+from utils import Constants
+from time import sleep
+import cocos
+from cocos.actions import *
+import pyglet
+from cocos import actions
 '''
 Actions describe what can be done in the system.
 For example, the "robot arm" MOVES a block from one location to another.
@@ -28,6 +35,7 @@ def stack(x, y):
         x.state.above.append(y)
         for block in y.state.above:
             x.state.above.append(block)
+        move_sprite_to_location(x, y.state.location)
         # Check if block is at goal
         x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
@@ -47,6 +55,7 @@ def unstack(x, y):
         x.state.clear = False
         x.state.on = None
         x.state.above = []
+        move_sprite_to_arm(x)
         return True
     return False
 
@@ -62,6 +71,7 @@ def pick_up(x):
         x.state.table = False
         x.state.above = []
         RobotArm.get_instance().grab_block(x)
+        move_sprite_to_arm(x)
         return True
     return False
 
@@ -77,6 +87,7 @@ def put_down(x, table_loc):
         x.state.clear = True
         x.state.table = True
         RobotArm.get_instance().release_block()
+        move_sprite_to_location(x, table_loc)
         # Check if block is at goal
         x.at_goal = RobotArm.get_instance().is_block_at_goal(x)
         return True
@@ -99,4 +110,47 @@ def move(end_location):
 # No operation; nothing happens, but time passes
 def noop():
     pass
+
+
+'''
+Handle moving the sprite to another location
+'''
+def move_sprite_to_location(block, loc):
+    # Get the sprite from the dictionary
+    sprites = RobotArm.get_instance().get_sprite_dict()
+    #sprite = sprites[block.symbol]
+    state = RobotArm.get_instance().get_current_state()
+
+    y_val = 0
+    x_val = 0
+    if loc == Location.L1:
+        x_val = Constants.LOCATION_LABEL_SPACING * 0
+        y_val = Constants.BLOCK_HEIGHT * len(state.L1)
+    elif loc == Location.L2:
+        x_val = Constants.LOCATION_LABEL_SPACING * 1
+        y_val = Constants.BLOCK_HEIGHT * len(state.L2)
+    elif loc == Location.L3:
+        x_val = Constants.LOCATION_LABEL_SPACING * 2
+        y_val = Constants.BLOCK_HEIGHT * len(state.L3)
+    elif loc == Location.L4:
+        x_val = Constants.LOCATION_LABEL_SPACING * 3
+        y_val = Constants.BLOCK_HEIGHT * len(state.L4)
+
+    sprites[block.symbol].do(MoveTo((x_val, y_val), 1))
+    RobotArm.get_instance().get_sprite().do(MoveTo((x_val + 550, y_val + 120), 1))
+    # UNCOMMENT THE FOLLOWING LINE FOR IMMEDIATE RESULTS
+    sleep(2.0)
+
+'''
+Handle moving sprite to robot arm
+'''
+def move_sprite_to_arm(block):
+    # Get the sprite from the dictionary
+    sprites = RobotArm.get_instance().get_sprite_dict()
+    sprite = sprites[block.symbol]
+
+    RobotArm.get_instance().get_sprite().do(MoveTo((550 + 400, 785), 1))
+    sprites[block.symbol].do(MoveTo((400, 660), 1))
+    # UNCOMMENT THE FOLLOWING LINE FOR IMMEDIATE RESULTS
+    sleep(2.0)
 

@@ -4,6 +4,8 @@ RobotArm.py contains definitions and attributes pertaining to the Robot Arm
 from enum import Enum
 from .Blocks import TableState
 from .Blocks import Location
+from utils import Constants
+from .Drawable import BlockSprite
 
 '''
 RobotArm acts as the robot arm that will be used to manage the blocks in the World of Blocks problem.
@@ -32,7 +34,16 @@ class RobotArm:
             self.__initial_state = TableState()
             self.__goal_state = TableState()
             self.__solver = None
+            self.__sprite_dict = {}
+            self.__main_scene = None
+            self.__sprite = None
             RobotArm.__instance = self
+
+    '''
+    Returns the current state of the solver
+    '''
+    def get_current_state(self):
+        return self.__solver.current_state
 
     # The arm should only grab a block if the arm is already empty
     def grab_block(self, block):
@@ -46,9 +57,24 @@ class RobotArm:
             self.__block = None
             self.__state = ArmState.EMPTY
 
+    # Get a reference to the main scene
+    def register_main_scene(self, scene):
+        self.__main_scene = scene
+    
+    def get_main_scene(self):
+        return self.__main_scene
+
     # Return the arm state
     def get_state(self):
         return self.__state
+
+    # Register sprite for arm
+    def register_sprite(self, arm):
+        self.__sprite = arm
+    
+    # Get arm sprite
+    def get_sprite(self):
+        return self.__sprite
 
     # Return the block that the arm is holding
     def get_block(self):
@@ -123,6 +149,31 @@ class RobotArm:
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_state):
         self.__goal_state = goal_state
+
+    '''
+    Register a block with a corresponding sprite; add it to dictionary
+    '''
+    def register_block_sprite(self, block):
+        # Create the block sprite
+        block_sprite = BlockSprite(block.symbol)
+        # Set the location of the block sprite
+        block_x = 0
+        if block.state.location == Location.L1:
+            block_x = Constants.LOCATION_LABEL_SPACING * 0
+        elif block.state.location == Location.L2:
+            block_x = Constants.LOCATION_LABEL_SPACING * 1
+        elif block.state.location == Location.L3:
+            block_x = Constants.LOCATION_LABEL_SPACING * 2
+        elif block.state.location == Location.L4:
+            block_x = Constants.LOCATION_LABEL_SPACING * 3
+        block_sprite.position = block_x, Constants.BLOCK_HEIGHT * len(block.state.above)
+        self.__sprite_dict[block.symbol] = block_sprite
+
+    '''
+    Returns the sprite dictionary
+    '''
+    def get_sprite_dict(self):
+        return self.__sprite_dict
 
     # Compare initial and goal state, return true if they match, false otherwise
     def is_goal_state_reached(self):
