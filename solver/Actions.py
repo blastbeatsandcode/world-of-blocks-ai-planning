@@ -66,6 +66,7 @@ def pick_up(x):
     PRE:    Robot arm must be empty; x must be on the table; x must be CLEAR; x is not at goal.
     CHNG:   x table = False; Robot arm grab x; above is empty;
     '''
+    print("VALUES ARE: ")
     if RobotArm.get_instance().get_state() == ArmState.EMPTY and x.state.table == True and x.state.clear == True and x.at_goal == False:
         print("Pick up the block - ", x.symbol)
         x.state.table = False

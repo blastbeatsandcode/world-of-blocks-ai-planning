@@ -11,7 +11,7 @@ from solver.Blocks import State
 from solver.Blocks import TableState
 from solver.RobotArm import RobotArm
 from solver.Drawable import (Table, Title, LocationLabel, BlockSprite, RobotArmSprite,
-    InitialStateLabel, GoalStateLabel, InitialStateEntry, GoalStateEntry, SolveButton)
+    InitialStateLabel, GoalStateLabel, SolveButton, GoalStateReachedLabel)
 import ctypes
 
 '''
@@ -65,6 +65,56 @@ def ask_for_user_states():
     RobotArm.get_instance().register_solver(solver)
     # RobotArm.get_instance().run_solver()
 
+# Get strings from each initial table state based on given location
+def get_init_string(loc):
+    values = ""
+    if loc == Location.L1:
+        values = "L1: "
+        lst = RobotArm.get_instance().get_initial_state().L1
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L2:
+        values = "L2: "
+        lst = RobotArm.get_instance().get_initial_state().L2
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L3:
+        values = "L3: "
+        lst = RobotArm.get_instance().get_initial_state().L3
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L4:
+        values = "L4: "
+        lst = RobotArm.get_instance().get_initial_state().L4
+        for item in lst:
+            values += " " + str(item.symbol)
+
+    return values
+
+# Get strings from each goal table state based on given location
+def get_goal_string(loc):
+    values = ""
+    if loc == Location.L1:
+        values = "L1: "
+        lst = RobotArm.get_instance().get_goal_state().L1
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L2:
+        values = "L2: "
+        lst = RobotArm.get_instance().get_goal_state().L2
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L3:
+        values = "L3: "
+        lst = RobotArm.get_instance().get_goal_state().L3
+        for item in lst:
+            values += " " + str(item.symbol)
+    elif loc == Location.L4:
+        values = "L4: "
+        lst = RobotArm.get_instance().get_goal_state().L4
+        for item in lst:
+            values += " " + str(item.symbol)
+    return values
 
 def create_stack(blocks, loc, is_init = False):
     blocks = blocks.replace(" ", "") # Remove all white space
@@ -121,12 +171,10 @@ if __name__ == "__main__":
     loc_4 = LocationLabel(Location.L4)  # L4 Label
 
     # State Labels
-    init_state_label = InitialStateLabel()
-    goal_state_label = GoalStateLabel()
-
-    # State entry
-    init_entry = InitialStateEntry()
-    goal_entry = GoalStateEntry()
+    init_state_label = InitialStateLabel(get_init_string(Location.L1), get_init_string(Location.L3),get_init_string(Location.L2), get_init_string(Location.L4))
+    goal_state_label = GoalStateLabel(get_goal_string(Location.L1), get_goal_string(Location.L2), get_goal_string(Location.L3), get_goal_string(Location.L4))
+    goal_state_reached_label = GoalStateReachedLabel()
+    goal_state_reached_label.visible = False
 
     # Solve button
     solve_btn = SolveButton(RobotArm.get_instance())
@@ -159,10 +207,9 @@ if __name__ == "__main__":
     # Add state labels
     game_layer.add(init_state_label)
     game_layer.add(goal_state_label)
+    game_layer.add(goal_state_reached_label)
 
-    # Add state entry
-    game_layer.add(init_entry)
-    game_layer.add(goal_entry)
+    RobotArm.get_instance().register_goal_state_reached_label(goal_state_reached_label)
 
     # add game layer to main scene
     main_scene.add(game_layer)

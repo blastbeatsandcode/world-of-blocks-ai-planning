@@ -32,7 +32,7 @@ The actions that can be performed in this solution are as follows:
 
 ## How To Use
 
-TODO: Update this section and describe the flow of the program.
+When the program starts, it will ask for the user to input first the initial state and then for the goal state. The inputs are given at the command line and will load into the game window afterwards. The blocks are labelled with wahtever symbol you choose, separated by commas. When you enter the symbols representing each block, start from the bottom and move upwards. When the program asks for L1 for the initial state, entering: `A, B, C` and pressing `enter` will generate 3 blocks with the letters A, B, and C respectively whith A being directly on the table at L1, B on top of A, and C on top of B.
 
 ## Set Up (Linux)
 **BEFORE CONTINUING**
