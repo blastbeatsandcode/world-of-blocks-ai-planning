@@ -37,6 +37,7 @@ class RobotArm:
             self.__sprite_dict = {}
             self.__main_scene = None
             self.__sprite = None
+            self.__goal_reached_label = None
             RobotArm.__instance = self
 
     '''
@@ -93,6 +94,7 @@ class RobotArm:
     def get_goal_state(self):
         if self.__goal_state != []:
             return self.__goal_state
+            print("GOAL STATE EXISTS")
 
     # Return the goal state dictionary
     def get_goal_dict(self):
@@ -149,6 +151,14 @@ class RobotArm:
     # Register goal state by adding each block from a list to the goal state
     def register_goal_state(self, goal_state):
         self.__goal_state = goal_state
+
+    # Register goal state label
+    def register_goal_state_reached_label(self, label):
+        self.__goal_reached_label = label
+
+    # Show goal state reached label
+    def show_goal_state_reached_label(self):
+        self.__goal_reached_label.visible = True
 
     '''
     Register a block with a corresponding sprite; add it to dictionary

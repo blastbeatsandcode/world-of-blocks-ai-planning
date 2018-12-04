@@ -62,6 +62,7 @@ class Solver:
         # Compare Location
         if block.state.location != dict_value.location:
             return False
+        block.at_goal = True
         return True
 
     '''
@@ -121,6 +122,10 @@ class Solver:
 
         print("Was goal state reached? ", self.goal_state_reached())
 
+        # Show goal state label
+        #if self.goal_state_reached():
+        RobotArm.get_instance().show_goal_state_reached_label()
+
         RobotArm.get_instance().get_sprite().do(MoveTo((550 + 400, 785), 4))
 
     '''
@@ -152,7 +157,47 @@ class Solver:
                 Actions.stack(block, self.current_state.L3[-1])
                 self.current_state.L3.append(block)
                 return True
-        else: # We have reached the bottom of L4, reposition blocks
+        else: # there is one block on L4
+            # Check if this block is at goal
+            pot_table_block = self.current_state.L4[-1]
+            goal_values = RobotArm.get_instance().get_goal_dict()[pot_table_block.symbol]
+            if pot_table_block.state.on == goal_values.on and pot_table_block.state.clear == goal_values.clear and pot_table_block.state.table == goal_values.table and pot_table_block.state.location == goal_values.location:
+                pot_table_block.at_goal = True
+                self.reposition()
+                return True
+            # If the table block for L4 is sitting on top of L1 and L1-L3 are complete
+            # remove the last block on L4 and move it to L3, then reposition
+            if len(self.current_state.L1) > 0:
+                sym = self.current_state.L1[-1].symbol # If table block for L4 is sitting on L1
+                if  RobotArm.get_instance().get_goal_dict()[sym].table == True and RobotArm.get_instance().get_goal_dict()[sym].location == Location.L4 and self.l1_complete and self.l2_complete and self.l3_complete:
+                    curr_table_block = self.current_state.L4.pop()
+                    Actions.pick_up(curr_table_block) # okay to here
+                    Actions.move(Location.L3)
+                    if len(self.current_state.L3) > 0:
+                        Actions.stack(curr_table_block, self.current_state.L3[-1])
+                    else:
+                        Actions.put_down(curr_table_block, Location.L3)
+                    self.current_state.L3.append(curr_table_block) # Last extraneous block on L4 has been moved, move table block back
+                    actual_table_block = self.current_state.L1.pop()
+                    if len(self.current_state.L1) == 0: # Because we have already popped it off the top
+                        Actions.pick_up(actual_table_block)
+                    else:
+                        Actions.unstack(actual_table_block, self.current_state.L1[-1])
+                    Actions.move(Location.L4)
+                    Actions.put_down(actual_table_block, Location.L4) # put down real table block and append it to list
+                    actual_table_block.at_goal = True
+                    self.current_state.L4.append(actual_table_block)
+            else:
+                # Unstack the block and move it to L3
+                block = self.current_state.L4.pop()
+                Actions.unstack(block, self.current_state.L4[-1])
+                Actions.move(Location.L3)
+                if len(self.current_state.L3) == 0:  # Put down if L3 is empty, stack otherwise
+                    Actions.put_down(block, Location.L3)
+                    self.current_state.L3.append(block)
+                    return True
+                else:
+                    Actions.stack(block, self.current_state.L3[-1])
             self.reposition()
             return False
 
@@ -187,6 +232,8 @@ class Solver:
             # move it to L1. Otherwise place it on L3 for repositioning
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
+                if self.l1_complete:
+                    return
                 # If the block has a goal in L1
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L1:
                     # Check if L1 has any blocks on it; if it does not, find the TABLE block first
@@ -255,13 +302,12 @@ class Solver:
                     if not self.block_in_location(Location.L1):
                         #self.reposition()
                         return
-                    print("STUCK IN HERE!!!!!!!")
                     self.remove_bad_block()
                     self.get_l1_blocks()
+            self.get_l1_blocks()
         else:
             # (seems to get stuck here)
             # check if stack is at goal state
-            print("STUCK IN HERE TOO!!!!!!!!1")
             if not self.block_in_location(Location.L1):
                 #self.reposition()
                 return
@@ -274,11 +320,13 @@ class Solver:
     Handle block movement to L2
     '''
     def get_l2_blocks(self):
-        if self.block_in_location(Location.L2) and not self.l2_complete: # Check if we have blocks in location
+        if self.block_in_location(Location.L2) and self.l1_complete and not self.l2_complete: # Check if we have blocks in location
             # Check each block in L4, if it is the table block
             # move it to L2. Otherwise place it on L3 for repositioning
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
+                if self.l2_complete:
+                    return
                 # If the block has a goal in L2
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L2:
                     # Check if L2 has any blocks on it; if it does not, find the TABLE block first
@@ -345,7 +393,7 @@ class Solver:
                 else: # block does not belong on specified location
                     self.remove_bad_block()
                     self.get_l2_blocks()
-            #self.get_l2_blocks()
+            self.get_l2_blocks()
         else:
             #self.reposition()
             # check if stack is at goal state
@@ -357,12 +405,14 @@ class Solver:
     Handle block movement to L3
     '''
     def get_l3_blocks(self):
-        if self.block_in_location(Location.L3) and not self.l3_complete: # Check if we have blocks in location
+        if self.block_in_location(Location.L3) and self.l1_complete and self.l2_complete and not self.l3_complete: # Check if we have blocks in location
             # Check each block in L4, if it is the table block
             # move it to L1. Otherwise place it on L3 for repositioning
             #raise Exception("Stops here!")
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
+                if self.l3_complete:
+                    return
                 # If the block has a goal in L1
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L3:
                     # Check if L1 has any blocks on it; if it does not, find the TABLE block first
@@ -431,6 +481,7 @@ class Solver:
                 else: # block does not belong on specified location
                     self.remove_bad_block_other()
                     self.get_l3_blocks()
+            self.get_l3_blocks()
         else:
             self.reposition()
             if self.stack_at_goal(Location.L3):
@@ -455,25 +506,39 @@ class Solver:
         if not self.l4_complete and len(self.goal_state.L4) > 1:
             l4_reverse = list(reversed(self.current_state.L4))
             for block in l4_reverse:
+                if self.l4_complete:
+                    return
                 # Find table block
                 if RobotArm.get_instance().get_goal_dict()[block.symbol].table and RobotArm.get_instance().get_goal_dict()[block.symbol].location == Location.L4:
                     table_block = self.current_state.L4[-1] # pull off table block
                     if table_block.state.table: # pick-up if on table, unstack otherwise
-                        table_block = self.current_state.L4.pop()
-                        Actions.pick_up(table_block)
-                        Actions.move(Location.L1) # Put table block on L1 for now
-                        Actions.put_down(table_block, Location.L1)
-                        self.current_state.L1.append(table_block)
+                        block.at_goal = True
+                        self.reposition()
+                        self.get_l4_blocks()
+                        # TODO: This return might break something
+                        return
+                        # table_block = self.current_state.L4.pop()
+                        # Actions.pick_up(table_block)
+                        # Actions.move(Location.L1) # Put table block on L1 for now
+                        # Actions.put_down(table_block, Location.L1)
+                        # self.current_state.L1.append(table_block)
                     else:
                         table_block = self.current_state.L4.pop()
                         Actions.unstack(table_block, self.current_state.L4[-1])
                         Actions.move(Location.L1) # Put table block on L1 for now
-                        Actions.put_down(table_block, Location.L2)
+                        if len(self.current_state.L1) == 0:
+                            Actions.put_down(table_block, Location.L1)
+                        else:
+                            Actions.stack(table_block, self.current_state.L1[-1])
                         self.current_state.L1.append(table_block)
                     # Now that the table block has been separated, remove the rest of the blocks from L4
                     while len(self.current_state.L4) > 0:
-                        if not self.remove_bad_block():
-                            break
+                        self.remove_bad_block()
+                        if len(self.current_state.L4) > 0:
+                            if self.current_state.L4[0].at_goal:
+                                # Do we need to reposition here?
+                                self.reposition()
+                                return
                     table_block = self.current_state.L1.pop()
                     if len(self.current_state.L1) == 0: # Pick up
                         Actions.pick_up(table_block)
@@ -485,8 +550,6 @@ class Solver:
                     table_block.at_goal = True
                     table_block.block_info
                     self.reposition()
-                    # for block in self.current_state.L3:
-                    #     block.block_info()
                     self.get_l4_blocks() # Table block is in place
                 elif not self.table_block_found_l4(): # Handle blocks that we haven't dealt with yet if we haven't found table block
                     self.remove_bad_block()

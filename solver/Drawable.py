@@ -164,11 +164,38 @@ class Title(cocos.layer.Layer):
         # Since the label is a subclass of cocosnode it can be added as a child
         self.add(label)
 
-# Initial State Layer
-class InitialStateLabel(cocos.layer.Layer):
-    # Constructor for HelloWorld class./github.com/blastbeatsandcode/blastbeatsandcode-website/public/img
+# Title layer
+class GoalStateReachedLabel(cocos.layer.Layer):
+    # Constructor for HelloWorld class
     def __init__(self):
         super().__init__()
+
+        # Label to display
+        label = cocos.text.Label(
+            'GOAL STATE REACHED!',
+            font_name='Arial',
+            font_size=32,
+            anchor_x='center', anchor_y='center',
+            color=(0, 128, 0, 255)
+        )
+
+        # Position it at the center of the screen
+        label.position = (Constants.WINDOW_WIDTH / 2), (Constants.WINDOW_HEIGHT - 200)
+
+        # Since the label is a subclass of cocosnode it can be added as a child
+        self.add(label)
+
+
+# Initial State Layer
+class InitialStateLabel(cocos.layer.Layer):
+    def __init__(self, l1_str = "L1: ", l2_str = "L2: ", l3_str = "L3: ", l4_str = "L4: "):
+        super().__init__()
+
+        # Strings to show as sub-labels to display initial state
+        self.l1_list = l1_str
+        self.l2_list = l2_str
+        self.l3_list = l3_str
+        self.l4_list = l4_str
 
         # Label to display
         label = cocos.text.Label(
@@ -177,18 +204,58 @@ class InitialStateLabel(cocos.layer.Layer):
             font_size=32,
             anchor_x='center', anchor_y='center'
         )
-
-        # Position it at the center of the screen
         label.position = Constants.INITIAL_STATE_X, Constants.INITIAL_STATE_Y
 
         # Since the label is a subclass of cocosnode it can be added as a child
         self.add(label)
 
+        l1_label = cocos.text.Label(
+            str(self.l1_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l1_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_INIT - (Constants.STATE_VALUE_SEPARATOR * 0)
+        self.add(l1_label)
+
+        l2_label = cocos.text.Label(
+            str(self.l2_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l2_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_INIT - (Constants.STATE_VALUE_SEPARATOR * 1)
+        self.add(l2_label)
+
+        l3_label = cocos.text.Label(
+            str(self.l3_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l3_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_INIT - (Constants.STATE_VALUE_SEPARATOR * 2)
+        self.add(l3_label)
+
+        l4_label = cocos.text.Label(
+            str(self.l4_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l4_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_INIT - (Constants.STATE_VALUE_SEPARATOR * 3)
+        self.add(l4_label)
+
 # Goal State Layer
 class GoalStateLabel(cocos.layer.Layer):
     # Constructor for HelloWorld class
-    def __init__(self):
+    def __init__(self, l1_str = "", l2_str = "", l3_str = "", l4_str = ""):
         super().__init__()
+
+        # Strings to show as sub-labels to display goal state
+        self.l1_list = l1_str
+        self.l2_list = l2_str
+        self.l3_list = l3_str
+        self.l4_list = l4_str
 
         # Label to display
         label = cocos.text.Label(
@@ -197,46 +264,45 @@ class GoalStateLabel(cocos.layer.Layer):
             font_size=32,
             anchor_x='center', anchor_y='center'
         )
-
-        # Position it at the center of the screen
         label.position = Constants.GOAL_STATE_X, Constants.GOAL_STATE_Y
-
-        # Since the label is a subclass of cocosnode it can be added as a child
         self.add(label)
 
-# User input for initial state
-class InitialStateEntry(cocos.layer.Layer):
-    def __init__(self):
-        super().__init__()
-        self.text = cocos.text.Label("", x=100, y=280)
-        self.keys_pressed = ""
-        self.update_text()
-        self.add(self.text)
+        l1_label = cocos.text.Label(
+            str(self.l1_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l1_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_GOAL - (
+                    Constants.STATE_VALUE_SEPARATOR * 0)
+        self.add(l1_label)
 
-    def update_text(self):
-        self.text.element.text = self.keys_pressed
+        l2_label = cocos.text.Label(
+            str(self.l2_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l2_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_GOAL  - (
+                    Constants.STATE_VALUE_SEPARATOR * 1)
+        self.add(l2_label)
 
-    def on_key_press(self, k, m):
-        if k == pyglet.window.key.ENTER:
-            print("You Entered: {}").format(self.keys_pressed)
-            # cocos.director.director.replace(FadeTransition(main_scene, 1))  # disabled for testing
-            #cocos.director.director.scene.end()  # added for testing
-        else:
-            kk = pyglet.window.key.symbol_string(k)
-            if kk == "SPACE":
-                kk = " "
-            if kk == "BACKSPACE":
-                self.keys_pressed = self.keys_pressed[:-1]
-            else:
-                # ignored_keys can obviously be expanded
-                ignored_keys = ("LSHIFT", "RSHIFT", "LCTRL", "RCTRL", "LCOMMAND", 
-                                "RCOMMAND", "LOPTION", "ROPTION")
-                if kk not in ignored_keys:
-                    self.keys_pressed = self.keys_pressed + kk
-            self.update_text()
+        l3_label = cocos.text.Label(
+            str(self.l3_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l3_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_GOAL  - (
+                    Constants.STATE_VALUE_SEPARATOR * 2)
+        self.add(l3_label)
 
-
-
-# User input for goal state
-class GoalStateEntry(cocos.layer.Layer):
-    pass
+        l4_label = cocos.text.Label(
+            str(self.l4_list),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left', anchor_y='center'
+        )
+        l4_label.position = Constants.STATE_VALUE_X, Constants.STATE_VALUE_Y_MAX_GOAL  - (
+                    Constants.STATE_VALUE_SEPARATOR * 3)
+        self.add(l4_label)
