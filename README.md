@@ -2,7 +2,7 @@
 
 Solving the famous [World of Blocks](https://en.wikipedia.org/wiki/Blocks_world) Artificial Intelligence problem using planning.
 
-This problems describes an imaginary _robot arm_ moving about different lettered _blocks_ from an _**initial state**_ to a _**goal state**_ as described by the user. This problem is solved using the brute force **Planning** technique, which is one of the most classic methods in Artificial Intelligence. To represent the robot arm moving the blocks about, the Cocos2D game engine was used.
+This problems describes an imaginary _robot arm_ moving about different lettered _blocks_ from an _**initial state**_ to a _**goal state**_ as described by the user. This problem is solved using a brute force **Planning** technique, using the language of STRIPS which is one of the most classic methods in Artificial Intelligence. It is a very loose interpretation. To represent the robot arm moving the blocks about, the Cocos2D game engine was used.
 
 ![](res/scrn_shot.png)
 
