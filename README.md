@@ -4,6 +4,8 @@ Solving the famous [World of Blocks](https://en.wikipedia.org/wiki/Blocks_world)
 
 This problems describes an imaginary _robot arm_ moving about different lettered _blocks_ from an _**initial state**_ to a _**goal state**_ as described by the user. This problem is solved using the brute force **Planning** technique, which is one of the most classic methods in Artificial Intelligence. To represent the robot arm moving the blocks about, the Cocos2D game engine was used.
 
+![](res/scrn_shot.png)
+
 ## Relations
 
 In this version of the World of Blocks problem, the relations among the blocks include `ABOVE`, `ON`, `CLEAR`, and `TABLE`.
@@ -32,7 +34,9 @@ The actions that can be performed in this solution are as follows:
 
 ## How To Use
 
-When the program starts, it will ask for the user to input first the initial state and then for the goal state. The inputs are given at the command line and will load into the game window afterwards. The blocks are labelled with wahtever symbol you choose, separated by commas. When you enter the symbols representing each block, start from the bottom and move upwards. When the program asks for L1 for the initial state, entering: `A, B, C` and pressing `enter` will generate 3 blocks with the letters A, B, and C respectively whith A being directly on the table at L1, B on top of A, and C on top of B.
+When the program starts, it will ask for the user to input first the initial state and then for the goal state. The inputs are given at the command line and will load into the game window afterwards. The blocks are labelled with any symbol you choose, separated by commas. When you enter the symbols representing each block, start from the bottom and move upwards. When the program asks for L1 for the initial state, entering: `A, B, C` and pressing `enter` will generate 3 blocks with the letters A, B, and C respectively whith A being directly on the table at L1, B on top of A, and C on top of B.
+
+After entering the initial and goal states, the UI will load. Simply press the **Solve** button and start solving!
 
 ## Set Up (Linux)
 **BEFORE CONTINUING**

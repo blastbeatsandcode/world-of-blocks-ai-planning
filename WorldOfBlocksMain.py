@@ -171,7 +171,7 @@ if __name__ == "__main__":
     loc_4 = LocationLabel(Location.L4)  # L4 Label
 
     # State Labels
-    init_state_label = InitialStateLabel(get_init_string(Location.L1), get_init_string(Location.L3),get_init_string(Location.L2), get_init_string(Location.L4))
+    init_state_label = InitialStateLabel(get_init_string(Location.L1), get_init_string(Location.L2),get_init_string(Location.L3), get_init_string(Location.L4))
     goal_state_label = GoalStateLabel(get_goal_string(Location.L1), get_goal_string(Location.L2), get_goal_string(Location.L3), get_goal_string(Location.L4))
     goal_state_reached_label = GoalStateReachedLabel()
     goal_state_reached_label.visible = False
